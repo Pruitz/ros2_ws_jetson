@@ -1,0 +1,20 @@
+receiver:
+  demetra_node:
+    ros__parameters:
+      odom_period_ms: 20 # 50 Hz
+      serial_period_ms: 10 # 100 Hz
+      cmd_vel_timeout_ms: 500
+
+      # Serial port configuration
+      port_name: "/dev/ttyUSB1"  # Change this to your serial port
+      baudrate: 115200  # Common baud rate for serial communication
+
+      # Geometry configuration
+      wheel_base: 0.4  # Distance between the front and rear wheels
+      wheel_diameter: 0.192
+      max_steering_angle_deg: 30.0
+      max_linear_velocity_m_s: 1.5
+      max_angular_velocity_rad_s: 1.5
+      odom_frame_id: "odom"
+      base_frame_id: "base_footprint"
+
