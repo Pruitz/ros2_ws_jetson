@@ -1,5 +1,5 @@
 PER RUNNARE LA BAG
-ros2 bag play "/hdd/emanuele-pruiti/2026_03_17/insalata/insalata_grande1" --clock
+ros2 bag play "database_bags/insalata_grande1" --clock
 
 //per usare le bag che pubblicano in raw e non in raw/compressed
 Prima avvi ros bag play come ros2 bag play "/nas/7 - Experimental data/OrtaggiAgrion/2026_06_11/data_converted/2026-06-11_10-41-54" --clock che pubblica in raw, e poi questo in un nuovo terminale:

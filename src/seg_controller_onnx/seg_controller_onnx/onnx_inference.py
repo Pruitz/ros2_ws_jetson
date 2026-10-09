@@ -21,7 +21,8 @@ def build_onnx_session(model_path: Path):
         raise FileNotFoundError(f"Modello ONNX non trovato: {model_path}")
 
     available_providers = ort.get_available_providers()
-    requested_providers = ["CPUExecutionProvider"]
+    #requested_providers = ["CPUExecutionProvider"]
+    requested_providers = ["CUDAExecutionProvider", "CPUExecutionProvider"]
 
     session = ort.InferenceSession(str(model_path), providers=requested_providers)
 
