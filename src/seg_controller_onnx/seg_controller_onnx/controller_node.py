@@ -433,7 +433,7 @@ class SegInferenceNode(Node):
 
 
         self.kp_lat = 0.85
-        self.v_max = 10.0
+        self.v_max = 2.0
         self.v_min = 0.07
         self.w_max = 0.25
 
@@ -542,7 +542,7 @@ class SegInferenceNode(Node):
 
 
         w = float(np.clip(w, -self.w_max, self.w_max))
-        v = 0.2 * self.v_max
+        v = self.v_max
         return v, w
 
 
