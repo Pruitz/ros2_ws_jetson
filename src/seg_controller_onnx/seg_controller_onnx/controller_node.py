@@ -568,10 +568,8 @@ class SegInferenceNode(Node):
 
 
 
-        t_decode_0 = perf_counter()
         np_arr = np.frombuffer(msg.data, np.uint8)
         frame = cv2.imdecode(np_arr, cv2.IMREAD_COLOR)
-        t_decode_1 = perf_counter()
 
 
 
@@ -579,7 +577,7 @@ class SegInferenceNode(Node):
         if frame is None:
             t_cb_1 = perf_counter()
             self.get_logger().warn(
-                f'Immagine non decodificata | callback_total={(t_cb_1 - t_cb_0)*1000:.1f} ms'
+                f'Immagine non decodificata | total={(t_cb_1 - t_cb_0)*1000:.1f} ms'
             )
             self.publish_stop()
             return
@@ -588,7 +586,6 @@ class SegInferenceNode(Node):
 
 
         camera_frame = frame.copy()
-        t0 = perf_counter()
         frame = resize_frame(frame)
         t1 = perf_counter()
 
@@ -606,9 +603,7 @@ class SegInferenceNode(Node):
 
 
 
-        t3 = perf_counter()
         path_matrix, pf_debug = path_finder(pred_mask)
-        t4 = perf_counter()
 
 
 
@@ -676,11 +671,8 @@ class SegInferenceNode(Node):
             if self.frame_count % self.log_every_n == 0:
                 self.get_logger().warn(
                     f'Frame {self.frame_count} | '
-                    f'callback_total={(t_cb_1 - t_cb_0)*1000:.1f} ms | '
-                    f'decode={(t_decode_1 - t_decode_0)*1000:.1f} ms | '
-                    f'preprocess={(t1 - t0)*1000:.1f} ms | '
+                    f'total={(t_cb_1 - t_cb_0)*1000:.1f} ms | '
                     f'inference={(t2 - t1)*1000:.1f} ms | '
-                    f'path_finding={(t4 - t3)*1000:.1f} ms | '
                     f'STOP | pf_status={pf_status} | conf={confidence:.2f} | '
                     f'band_ratio={band_on_path_ratio:.2f} | strip_ratio={strip_tracking_ratio:.2f} | '
                     f'filter={filter_status} | lost_count={self.lost_count}'
@@ -701,9 +693,7 @@ class SegInferenceNode(Node):
 
 
 
-        t_cmd_pub_0 = perf_counter()
         self.cmd_pub.publish(cmd)
-        t_cmd_pub_1 = perf_counter()
 
 
 
@@ -718,12 +708,8 @@ class SegInferenceNode(Node):
             filtered_error_txt = f"{filtered_error:.2f}" if filtered_error is not None else "None"
             self.get_logger().info(
                 f'Frame {self.frame_count} | '
-                f'callback_total={(t_cb_1 - t_cb_0)*1000:.1f} ms | '
-                f'decode={(t_decode_1 - t_decode_0)*1000:.1f} ms | '
-                f'preprocess={(t1 - t0)*1000:.1f} ms | '
+                f'total={(t_cb_1 - t_cb_0)*1000:.1f} ms | '
                 f'inference={(t2 - t1)*1000:.1f} ms | '
-                f'path_finding={(t4 - t3)*1000:.1f} ms | '
-                f'cmd_publish={(t_cmd_pub_1 - t_cmd_pub_0)*1000:.1f} ms | '
                 f'pf_status={pf_status} | conf={confidence:.2f} | '
                 f'band_ratio={band_on_path_ratio:.2f} | strip_ratio={strip_tracking_ratio:.2f} | '
                 f'side={side} | raw_error={raw_error_txt} | '
