@@ -24,3 +24,16 @@ ros2 bag record -o debug_filter4 \
 
   STREAMING
 ros2 run web_video_server web_video_server --ros-args -p port:=8080 -p address:=0.0.0.0
+
+COMUNICAZIONE SERIALE (da avviare per mandare i comandi al robot)
+source /opt/ros/humble/setup.bash
+source /mnt/nvme/emanuele_project/ros2_ws_emanuele/install/setup.bash
+ros2 run demetra_serial_driver driver_node
+
+PER LANCIARE LA CAMERA
+ros2 launch realsense2_camera rs_launch.py camera_name:=camera camera_namespace:=camera
+
+(per vedere quali pacchetti hanno il nome realsense)
+ros2 pkg list | grep realsense
+(per vedere i dispositivi collegati usb)
+001 002

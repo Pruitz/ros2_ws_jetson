@@ -432,10 +432,47 @@ class SegInferenceNode(Node):
 
 
 
-        self.kp_lat = 0.85
-        self.v_max = 2.0
+        self.kp_lat = 1.0
+        self.v_max = 0.3
         self.v_min = 0.07
-        self.w_max = 0.25
+        self.w_max = 0.87
+        # COME SCEGLIERE v_max E w_max
+        # Il robot non usa w direttamente: il driver lo converte in angolo delle ruote (sterzo):
+        #   phi = atan2(wheel_base * w, 2 * v)   con wheel_base = 0.4
+        # A parità di w, più v è alta e meno il robot sterza. Se lo sterzo è
+        # troppo piccolo (pochi gradi) il robot sembra non girare.
+        # Lo sterzo massimo del robot è 30°.
+        #
+        # La tabella dice: "con velocità v e w, di quanti gradi sterzano le ruote?"
+        #   - RIGA   = la tua v_max (velocità in avanti, m/s)
+        #   - COLONNA = un valore di w (rad/s)
+        #   - CELLA  = gradi di sterzo che ne risultano
+        #
+        # Come usarla:
+        #   1. Scegli v_max (es. 0.3 m/s) e trova la sua riga.
+        #   2. Guarda l'ultima colonna "w per 30°": è il w_max che serve per
+        #      far sterzare il robot al massimo (30°). Usa quel valore (o poco meno).
+        #   3. Per curve più dolci scegli un w_max più basso: leggi nella riga
+        #      la colonna che ti dà i gradi che vuoi.
+        #
+        # Esempio: v_max = 0.3 e w_max = 0.50 -> sterzo max 18.4°.
+        #          Per arrivare a 30° servirebbe w_max = 0.87 (ultima colonna).
+        # Esempio: w = 0.16 con v = 2.0 -> sterzo 0.9° (quasi nullo, il robot non gira).
+        #
+        # (wheel_base = 0.4 è il valore di driver_params.yaml; i gradi sono calcolati
+        #  con la formula del driver, non misurati sul robot)
+        #
+        #  v \ w |  0.05 |  0.10 |  0.16 |  0.25 |  0.50 |  1.00 | w per 30°
+        # -------+-------+-------+-------+-------+-------+-------+----------
+        #   0.2  |  2.9  |  5.7  |  9.1  | 14.0  | 26.6  | 45.0  |   0.58
+        #   0.3  |  1.9  |  3.8  |  6.1  |  9.5  | 18.4  | 33.7  |   0.87
+        #   0.5  |  1.1  |  2.3  |  3.7  |  5.7  | 11.3  | 21.8  |   1.44
+        #   0.7  |  0.8  |  1.6  |  2.6  |  4.1  |  8.1  | 15.9  |   2.02
+        #   1.0  |  0.6  |  1.1  |  1.8  |  2.9  |  5.7  | 11.3  |   2.89
+        #   1.5  |  0.4  |  0.8  |  1.2  |  1.9  |  3.8  |  7.6  |   4.33
+        #   2.0  |  0.3  |  0.6  |  0.9  |  1.4  |  2.9  |  5.7  |   5.77
+        #
+        # Più v_max è alta, più w_max deve crescere per ottenere lo stesso sterzo.
 
 
 
