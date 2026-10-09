@@ -1,3 +1,9 @@
+cd /mnt/nvme/emanuele_project/ros2_ws_emanuele
+source /opt/ros/humble/setup.bash
+colcon build --symlink-install
+source install/setup.bash
+ros2 run seg_controller_onnx controller_node
+
 PER RUNNARE LA BAG
 ros2 bag play "database_bags/insalata_grande1" --clock
 
