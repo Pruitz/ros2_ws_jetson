@@ -365,7 +365,7 @@ class SegInferenceNode(Node):
 
 
         self.frame_count = 0
-        self.process_every_n = 1
+        self.process_every_n = 3   # 30fps / 3 = 10 Hz di analisi (era 1 = 30 Hz)
 
 
 
@@ -408,6 +408,7 @@ class SegInferenceNode(Node):
         self.last_valid_error = None
         self.last_valid_time = 0.0
         self.lost_count = 0
+        self.consecutive_jumps = 0
 
 
 
@@ -418,8 +419,8 @@ class SegInferenceNode(Node):
 
 
         self.deadband_px = 6.0
-        self.hold_timeout = 0.30
-        self.max_lost_frames = 3
+        self.hold_timeout = 0.60   # alzato da 0.30s: con process_every_n=3 (10Hz) il frame arriva ogni 100ms
+        self.max_lost_frames = 6   # alzato da 3: 6 frame a 10Hz = 600ms prima di fermarsi
 
 
 
@@ -432,10 +433,23 @@ class SegInferenceNode(Node):
 
 
 
-        self.kp_lat = 1.0
-        self.v_max = 0.3
+        self.kp_lat = 0.6   # 30° a ~50-60 px di errore (più fluido, evita oscillazioni)
+
+        # === PROFILI VELOCITÀ / STERZO (30° max) ===
+        # --- Profilo REALE 1 (Standard): v=0.30 m/s, w=0.87 rad/s ---
+        # self.v_max = 0.30
+        # self.v_min = 0.07
+        # self.w_max = 0.87
+
+        # --- Profilo REALE 2 (Moderato): v=0.20 m/s, w=0.58 rad/s ---
+        # self.v_max = 0.20
+        # self.v_min = 0.07
+        # self.w_max = 0.58
+
+        # --- Profilo TEST ATTIVO (Molto lento): v=0.07 m/s, w=0.21 rad/s ---
+        self.v_max = 0.07
         self.v_min = 0.07
-        self.w_max = 0.87
+        self.w_max = 0.21   # w per ottenere 30° a v=0.07: atan2(0.4*0.21, 2*0.07) >= 30°
         # COME SCEGLIERE v_max E w_max
         # Il robot non usa w direttamente: il driver lo converte in angolo delle ruote (sterzo):
         #   phi = atan2(wheel_base * w, 2 * v)   con wheel_base = 0.4
@@ -503,6 +517,10 @@ class SegInferenceNode(Node):
 
         # Se PF è perso, non produco errore filtrato
         if pf_status == "lost":
+            if (now - self.last_valid_time) > self.hold_timeout:
+                self.filtered_error = None
+                self.last_valid_error = None
+                self.consecutive_jumps = 0
             return None, "lost_by_pf_status"
 
         # Se non c'è errore grezzo (es. centerline assente)
@@ -512,20 +530,27 @@ class SegInferenceNode(Node):
                 and (now - self.last_valid_time) <= self.hold_timeout
             ):
                 # Mantengo l'ultimo errore filtrato per un breve periodo
-                return self.filtered_error, "hold"
+                cmd_error = self.filtered_error
+                if abs(cmd_error) < self.deadband_px:
+                    cmd_error = 0.0
+                return cmd_error, "hold"
+            self.filtered_error = None
+            self.last_valid_error = None
+            self.consecutive_jumps = 0
             return None, "lost"
 
         # Parametri in base allo stato PF (due regimi semplici)
         if pf_status == "degraded":
-            alpha = 0.12        # più prudente
-            jump_thr = 30.0     # soglia di salto più severa
+            alpha = 0.18        # quasi uguale a ok
+            jump_thr = 38.0     # soglia rilassata
         else:
             alpha = 0.20        # reattivo
             jump_thr = 40.0     # soglia di salto normale
 
-        # Inizializzo filtered_error se è la prima volta
+        # Inizializzo filtered_error se è la prima volta o dopo uno stop/lost
         if self.filtered_error is None:
             self.filtered_error = float(error_px)
+            self.consecutive_jumps = 0
         else:
             jump = abs(error_px - self.filtered_error)
 
@@ -534,19 +559,28 @@ class SegInferenceNode(Node):
                 self.filtered_error = (
                     (1.0 - alpha) * self.filtered_error + alpha * float(error_px)
                 )
+                self.consecutive_jumps = 0
             else:
-                # Salto grande: probabile outlier, accetto solo il 5% del nuovo errore
-                self.filtered_error = (
-                    0.95 * self.filtered_error + 0.05 * float(error_px)
-                )
-
-        # Deadband: se l'errore filtrato è piccolo, lo porto a zero
-        if abs(self.filtered_error) < self.deadband_px:
-            self.filtered_error = 0.0
+                self.consecutive_jumps += 1
+                if self.consecutive_jumps >= 2:
+                    # Se il salto persiste per >= 2 frame consecutivi, è la linea reale
+                    self.filtered_error = float(error_px)
+                    self.consecutive_jumps = 0
+                else:
+                    # Singolo frame isolato: integrazione prudente senza azzeramento
+                    self.filtered_error = (
+                        0.80 * self.filtered_error + 0.20 * float(error_px)
+                    )
 
         # Aggiorno ultimo errore valido e tempo
         self.last_valid_error = float(self.filtered_error)
         self.last_valid_time = now
+
+        # Deadband applicata all'OUTPUT di comando per non oscillare a centro,
+        # senza azzerare lo stato interno del filtro (evita il deadlock a 0)
+        cmd_error = self.filtered_error
+        if abs(cmd_error) < self.deadband_px:
+            cmd_error = 0.0
 
         # Determino lo stato del filtro
         if pf_status == "degraded":
@@ -554,7 +588,7 @@ class SegInferenceNode(Node):
         else:
             filter_status = "valid"
 
-        return self.filtered_error, filter_status
+        return cmd_error, filter_status
 
 
 
@@ -572,8 +606,10 @@ class SegInferenceNode(Node):
 
 
 
-        if pf_status == "degraded":
-            w *= 0.7
+        # Penalità degraded rimossa: se degraded è la condizione normale,
+        # ridurre w al 70% porta il robot a sterzare sempre meno del necessario.
+        # if pf_status == "degraded":
+        #     w *= 0.7
 
 
 
@@ -708,9 +744,13 @@ class SegInferenceNode(Node):
 
 
         if self.lost_count >= self.max_lost_frames:
+            self.filtered_error = None
+            self.last_valid_error = None
+            self.consecutive_jumps = 0
             self.publish_stop()
             t_cb_1 = perf_counter()
             if self.frame_count % self.log_every_n == 0:
+                raw_error_txt = f"{raw_error:.2f}" if raw_error is not None else "None"
                 self.get_logger().warn(
                     f'Frame {self.frame_count} | '
                     f'callback_total={(t_cb_1 - t_cb_0)*1000:.1f} ms | '
@@ -720,6 +760,7 @@ class SegInferenceNode(Node):
                     f'path_finding={(t4 - t3)*1000:.1f} ms | '
                     f'STOP | pf_status={pf_status} | conf={confidence:.2f} | '
                     f'band_ratio={band_on_path_ratio:.2f} | strip_ratio={strip_tracking_ratio:.2f} | '
+                    f'raw_error={raw_error_txt} | side={side} | '
                     f'filter={filter_status} | lost_count={self.lost_count}'
                 )
             return
