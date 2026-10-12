@@ -9,6 +9,7 @@
 #include <vector>
 #include <mutex>
 #include <chrono>
+#include <cmath>
 
 namespace demetra_serial_driver
 {
@@ -18,6 +19,8 @@ public:
   SerialDriver();
   SerialDriver(const std::string & port, int baudrate);
   ~SerialDriver();
+
+  void init(const std::string & port, int baudrate);
 
   bool open();
   void close();

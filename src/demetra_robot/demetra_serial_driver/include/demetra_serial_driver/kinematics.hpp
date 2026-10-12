@@ -75,6 +75,7 @@ private:
   double min_linear_velocity_; // Minimum linear velocity (m/s)
   double max_angular_velocity_; // Maximum angular velocity (rad/s)
   double min_angular_velocity_; // Minimum angular velocity (rad/s)
+  double last_steering_angle_;  // Last commanded steering angle (radians)
 
   /**
    * \brief Calculates steering angle from the desired twist
