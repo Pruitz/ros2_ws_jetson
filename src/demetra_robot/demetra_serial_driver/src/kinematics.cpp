@@ -30,6 +30,7 @@ Kinematics::Kinematics(
   yaw_ = 0.0;
   v_bx_ = 0.0;
   omega_bz_ = 0.0;
+  last_steering_angle_ = 0.0;
 }
 
 void Kinematics::update_odometry(double platform_speed, double steering_angle, double dt)
@@ -45,9 +46,14 @@ void Kinematics::update_odometry(double platform_speed, double steering_angle, d
 
 double Kinematics::convert_twist_to_steering_angle(double v_bx, double omega_bz)
 {
-  if (std::abs(v_bx) < std::numeric_limits<double>::epsilon() ||
-    std::abs(omega_bz) < std::numeric_limits<double>::epsilon())
+  if (std::abs(v_bx) < std::numeric_limits<double>::epsilon())
   {
+    return last_steering_angle_;
+  }
+
+  if (std::abs(omega_bz) < std::numeric_limits<double>::epsilon())
+  {
+    last_steering_angle_ = 0.0;
     return 0.0;
   }
 
@@ -62,6 +68,7 @@ double Kinematics::convert_twist_to_steering_angle(double v_bx, double omega_bz)
   // Ensure the steering angle is within the limits
   phi = std::clamp(phi, min_steering_angle_, max_steering_angle_);
 
+  last_steering_angle_ = phi;
   return phi;
 }
 
@@ -78,6 +85,7 @@ void Kinematics::reset_odometry(double x, double y, double yaw, double v_bx, dou
   yaw_ = yaw;
   v_bx_ = v_bx;
   omega_bz_ = omega_bz;
+  last_steering_angle_ = 0.0;
 }
 
 } // namespace demetra_serial_driver

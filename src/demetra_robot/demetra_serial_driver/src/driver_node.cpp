@@ -31,26 +31,26 @@ public:
 
   explicit DriverNodeComponent(const rclcpp::NodeOptions & options)
   : rclcpp::Node("demetra_node", options),
-    serial_driver_("", 0) // temporary values, will be set below
+    serial_driver_()
   {
     // declare parameters
-    odom_period_ms_ = this->declare_parameter<int>("odom_period_ms", 10);
+    odom_period_ms_ = this->declare_parameter<int>("odom_period_ms", 20);
     serial_period_ms_ = this->declare_parameter<int>("serial_period_ms", 10);
     cmd_vel_timeout_ms_ = this->declare_parameter<int>("cmd_vel_timeout_ms", 500);
     port_name_ = this->declare_parameter<std::string>("port_name", "/dev/ttyUSB0");
     baudrate_ = this->declare_parameter<int>("baudrate", 115200);
-    wheel_base_ = this->declare_parameter<double>("wheel_base", 0.5);
-    wheel_diameter_ = this->declare_parameter<double>("wheel_diameter", 0.2);
+    wheel_base_ = this->declare_parameter<double>("wheel_base", 0.4);
+    wheel_diameter_ = this->declare_parameter<double>("wheel_diameter", 0.192);
     max_steering_angle_ =
       angles::from_degrees(this->declare_parameter<double>("max_steering_angle_deg", 30.0));
-    max_linear_velocity_ = this->declare_parameter<double>("max_linear_velocity_m_s", 1.0);
-    max_angular_velocity_ = this->declare_parameter<double>("max_angular_velocity_rad_s", 1.0);
+    max_linear_velocity_ = this->declare_parameter<double>("max_linear_velocity_m_s", 1.5);
+    max_angular_velocity_ = this->declare_parameter<double>("max_angular_velocity_rad_s", 6.0);
     odom_frame_id_ = this->declare_parameter<std::string>("odom_frame_id", "odom");
-    base_frame_id_ = this->declare_parameter<std::string>("base_frame_id", "base_link");
+    base_frame_id_ = this->declare_parameter<std::string>("base_frame_id", "base_footprint");
     publish_tf_ = this->declare_parameter<bool>("publish_tf", true);
 
-    // Re-initialize serial_driver_ with correct parameters using placement new
-    new (&serial_driver_) SerialDriver(port_name_, baudrate_);
+    // Initialize serial_driver_ with parameters
+    serial_driver_.init(port_name_, baudrate_);
 
     kinematics_ = Kinematics(
       wheel_base_, wheel_diameter_,

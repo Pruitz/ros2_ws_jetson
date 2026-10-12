@@ -14,11 +14,31 @@
 
 namespace demetra_serial_driver
 {
-SerialDriver::SerialDriver() {}
+SerialDriver::SerialDriver()
+: port_name_(""), baudrate_(0), timeout_ms_(100), fd_(-1), commands_(
+    COMMANDS_PACKET_SIZE, 0.0f), feedback_(
+    FEEDBACK_PACKET_SIZE, 0.0f) {}
+
 SerialDriver::SerialDriver(const std::string & port, int baudrate)
 : port_name_(port), baudrate_(baudrate), timeout_ms_(100), fd_(-1), commands_(
-    COMMANDS_PACKET_SIZE, 0.0), feedback_(
-    FEEDBACK_PACKET_SIZE, 0.0) {}
+    COMMANDS_PACKET_SIZE, 0.0f), feedback_(
+    FEEDBACK_PACKET_SIZE, 0.0f) {}
+
+void SerialDriver::init(const std::string & port, int baudrate)
+{
+  port_name_ = port;
+  baudrate_ = baudrate;
+  timeout_ms_ = 100;
+  fd_ = -1;
+  {
+    std::lock_guard<std::mutex> lock(commands_mutex_);
+    commands_.assign(COMMANDS_PACKET_SIZE, 0.0f);
+  }
+  {
+    std::lock_guard<std::mutex> lock(feedback_mutex_);
+    feedback_.assign(FEEDBACK_PACKET_SIZE, 0.0f);
+  }
+}
 
 SerialDriver::~SerialDriver()
 {
@@ -203,21 +223,26 @@ bool SerialDriver::read(ssize_t & n_bytes_read)
   while (n_bytes_read < FEEDBACK_BINARY_PACKET_SIZE && elapsed_time_ms < timeout_ms_) {
     elapsed_time_ms = std::chrono::duration_cast<std::chrono::milliseconds>(
       std::chrono::steady_clock::now() - start_time).count();
-    n_bytes_read += ::read(
+    ssize_t ret = ::read(
       fd_, &feedback_binary_[n_bytes_read],
       FEEDBACK_BINARY_PACKET_SIZE - n_bytes_read);
+    if (ret > 0) {
+      n_bytes_read += ret;
+    } else if (ret < 0) {
+      if (errno != EAGAIN && errno != EWOULDBLOCK && errno != EINTR) {
+        return false;
+      }
+    }
     std::this_thread::sleep_for(std::chrono::nanoseconds(10));
-    
   }
 
   if (n_bytes_read == FEEDBACK_BINARY_PACKET_SIZE) {
-    // memcpy(feedback_binary_, tmp_buffer, FEEDBACK_BINARY_PACKET_SIZE);
     decodePacket();
     float checksum = 0.0f;
     for (size_t i = 0; i < FEEDBACK_PACKET_SIZE - 1; i++) {
       checksum += feedback_[i];
     }
-    return checksum - feedback_[FEEDBACK_PACKET_SIZE - 1] < std::numeric_limits<float>::epsilon();
+    return std::abs(checksum - feedback_[FEEDBACK_PACKET_SIZE - 1]) < 1e-4f;
   }
 
   return false; // Read failed or not enough bytes
@@ -232,9 +257,11 @@ bool SerialDriver::write()
 bool SerialDriver::write(ssize_t & n_bytes_written)
 {
   resetLightsIfExpired();  // clear the lights once their hold time has elapsed
-  encodePacket();
-  if (fd_ < 0) {throw std::runtime_error("Serial port not open");}
-  n_bytes_written = ::write(fd_, commands_binary_, COMMANDS_BINARY_PACKET_SIZE);
+  encodePacket();  //converte commands_ in commands_binary_ pronto per essere inviato
+  if (fd_ < 0) {throw std::runtime_error("Serial port not open");} //controlla se la porta seriale è stata aperta
+  
+  n_bytes_written = ::write(fd_, commands_binary_, COMMANDS_BINARY_PACKET_SIZE);  //scrive sulla porta seriale (invia i comandi al robot via seriale); fn_ su quale porta seriale scrivere; COMMANDS_BINARY_PACKET_SIZE quanti byte inviare
+                                                                                // n_bytes_written: numero di byte scritti; -1 in caso di fallimento; ENODEV porta scollegata, EIO errore generico, EBADF file descriptor non valido
   if (n_bytes_written == -1 && (errno == ENODEV || errno == EIO || errno == EBADF)) {
     perror("Serial port disconnected");
     close();
