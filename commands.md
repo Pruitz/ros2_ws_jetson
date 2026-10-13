@@ -61,7 +61,7 @@ ros2 bag record /odom
 
 SIMULAZIONE CAMERA DA TASTIERA (SPOSTA FOTO SENZA ROBOT)
 1) In un terminale container avvia la camera virtuale:
-python3 /mnt/nvme/emanuele_project/simulation_singleframe/sim_camera.py
+python3 /mnt/nvme/emanuele_project/ros2_ws_emanuele/simulation_singleframe/sim_camera.py
 
 2) Premi direttamente i tasti nella finestra dello script:
    [ a ] oppure [ <- Freccia Sinistra ] : sposta l'immagine a SINISTRA
