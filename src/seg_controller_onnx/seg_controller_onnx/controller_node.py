@@ -49,6 +49,7 @@ from seg_controller_onnx.onnx_inference import (
     run_inference_on_frame,
 )
 from .pf4 import path_finder
+#from .pf_histogram import path_finder
 
 
 
@@ -56,7 +57,7 @@ from .pf4 import path_finder
 
 TARGET_W = 224
 TARGET_H = 224
-ERROR_ROW_RATIO = 0.70
+ERROR_ROW_RATIO = 0.50
 
 
 
@@ -365,7 +366,7 @@ class SegInferenceNode(Node):
 
 
         self.frame_count = 0
-        self.process_every_n = 3   # 30fps / 3 = 10 Hz di analisi (era 1 = 30 Hz)
+        self.process_every_n = 1   # 30fps / 3 = 10 Hz di analisi (era 1 = 30 Hz)
 
 
 
@@ -380,7 +381,7 @@ class SegInferenceNode(Node):
 
 
 
-        self.cmd_pub = self.create_publisher(Twist, '/cmd_vel', 10)
+        self.cmd_pub = self.create_publisher(Twist, '/cmd_vel', 20)
 
 
 
@@ -418,9 +419,9 @@ class SegInferenceNode(Node):
 
 
 
-        self.deadband_px = 6.0
-        self.hold_timeout = 0.60   # alzato da 0.30s: con process_every_n=3 (10Hz) il frame arriva ogni 100ms
-        self.max_lost_frames = 6   # alzato da 3: 6 frame a 10Hz = 600ms prima di fermarsi
+        self.deadband_px = 4.0
+        self.hold_timeout = 0.50   # mantenimento ultimo errore valido su buchi temporanei (~500ms)
+        self.max_lost_frames = 15  # a 30 FPS = ~500ms prima di fermarsi del tutto
 
 
 
@@ -433,7 +434,7 @@ class SegInferenceNode(Node):
 
 
 
-        self.kp_lat = 0.6   # 30° a ~50-60 px di errore (più fluido, evita oscillazioni)
+        self.kp_lat = 1.2   # 30° a ~54px di errore (più fluido, evita oscillazioni)
 
         # === PROFILI VELOCITÀ / STERZO (30° max) ===
         # --- Profilo REALE 1 (Standard): v=0.30 m/s, w=0.87 rad/s ---
@@ -442,14 +443,14 @@ class SegInferenceNode(Node):
         # self.w_max = 0.87
 
         # --- Profilo REALE 2 (Moderato): v=0.20 m/s, w=0.58 rad/s ---
-        # self.v_max = 0.20
-        # self.v_min = 0.07
-        # self.w_max = 0.58
+        self.v_max = 0.20
+        self.v_min = 0.07
+        self.w_max = 0.58
 
         # --- Profilo TEST ATTIVO (Molto lento): v=0.07 m/s, w=0.21 rad/s ---
-        self.v_max = 0.07
-        self.v_min = 0.07
-        self.w_max = 0.21   # w per ottenere 30° a v=0.07: atan2(0.4*0.21, 2*0.07) >= 30°
+        #self.v_max = 0.07
+        #self.v_min = 0.07
+        #self.w_max = 0.21   # w per ottenere 30° a v=0.07: atan2(0.4*0.21, 2*0.07) >= 30°
         # COME SCEGLIERE v_max E w_max
         # Il robot non usa w direttamente: il driver lo converte in angolo delle ruote (sterzo):
         #   phi = atan2(wheel_base * w, 2 * v)   con wheel_base = 0.4
@@ -515,12 +516,19 @@ class SegInferenceNode(Node):
         """
         now = time()
 
-        # Se PF è perso, non produco errore filtrato
+        # Se PF è perso, mantengo temporaneamente l'ultimo errore valido se entro hold_timeout
         if pf_status == "lost":
-            if (now - self.last_valid_time) > self.hold_timeout:
-                self.filtered_error = None
-                self.last_valid_error = None
-                self.consecutive_jumps = 0
+            if (
+                self.last_valid_error is not None
+                and (now - self.last_valid_time) <= self.hold_timeout
+            ):
+                cmd_error = self.filtered_error
+                if abs(cmd_error) < self.deadband_px:
+                    cmd_error = 0.0
+                return cmd_error, "hold_lost"
+            self.filtered_error = None
+            self.last_valid_error = None
+            self.consecutive_jumps = 0
             return None, "lost_by_pf_status"
 
         # Se non c'è errore grezzo (es. centerline assente)
@@ -593,7 +601,7 @@ class SegInferenceNode(Node):
 
 
     def compute_cmd(self, error_px, img_width, confidence, pf_status):
-        if error_px is None or pf_status == "lost":
+        if error_px is None:
             return 0.0, 0.0
 
 
@@ -709,6 +717,28 @@ class SegInferenceNode(Node):
             self.lost_count = 0
 
 
+        # === 1. CALCOLA E PUBBLICA CMD_VEL SUBITO (MASSIMA PRIORITÀ CONTROLLO) ===
+        is_stopped = False
+        if self.lost_count >= self.max_lost_frames or filtered_error is None:
+            self.filtered_error = None
+            self.last_valid_error = None
+            self.consecutive_jumps = 0
+            v, w = 0.0, 0.0
+            t_cmd_pub_0 = perf_counter()
+            self.publish_stop()
+            t_cmd_pub_1 = perf_counter()
+            is_stopped = True
+        else:
+            img_width = path_matrix.shape[1]
+            v, w = self.compute_cmd(filtered_error, img_width, confidence, pf_status)
+            cmd = Twist()
+            cmd.linear.x = v
+            cmd.angular.z = w
+            t_cmd_pub_0 = perf_counter()
+            self.cmd_pub.publish(cmd)
+            t_cmd_pub_1 = perf_counter()
+
+        # === 2. GENERAZIONE E PUBBLICAZIONE DEBUG (DOPO L'INVIO AL ROBOT) ===
         debug_img = build_debug_image(
             pred_mask,
             path_matrix,
@@ -718,8 +748,6 @@ class SegInferenceNode(Node):
             confidence,
             pf_status,
         )
-
-
 
         # immagine debug seg
         debug_msg = cv2_to_compressed_msg(debug_img, msg.header.stamp)
@@ -741,14 +769,9 @@ class SegInferenceNode(Node):
         if debug_path_msg is not None:
             self.debug_path_pub.publish(debug_path_msg)
 
+        t_cb_1 = perf_counter()
 
-
-        if self.lost_count >= self.max_lost_frames:
-            self.filtered_error = None
-            self.last_valid_error = None
-            self.consecutive_jumps = 0
-            self.publish_stop()
-            t_cb_1 = perf_counter()
+        if is_stopped:
             if self.frame_count % self.log_every_n == 0:
                 raw_error_txt = f"{raw_error:.2f}" if raw_error is not None else "None"
                 self.get_logger().warn(
@@ -764,29 +787,6 @@ class SegInferenceNode(Node):
                     f'filter={filter_status} | lost_count={self.lost_count}'
                 )
             return
-
-
-        img_width = path_matrix.shape[1]
-        v, w = self.compute_cmd(filtered_error, img_width, confidence, pf_status)
-
-
-
-
-        cmd = Twist()
-        cmd.linear.x = v
-        cmd.angular.z = w
-
-
-
-
-        t_cmd_pub_0 = perf_counter()
-        self.cmd_pub.publish(cmd)
-        t_cmd_pub_1 = perf_counter()
-
-
-
-
-        t_cb_1 = perf_counter()
 
 
 
