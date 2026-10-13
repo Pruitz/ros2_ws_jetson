@@ -192,6 +192,8 @@ class VirtualCameraSimulator(Node):
                 if not rlist:
                     continue
                 c = sys.stdin.read(1)
+                if not c:
+                    break
 
                 if c == '\x1b':  # Sequenza frecce
                     seq = sys.stdin.read(2)
