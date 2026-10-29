@@ -34,6 +34,7 @@ from rclpy.node import Node
 from rclpy.qos import QoSProfile, ReliabilityPolicy, DurabilityPolicy, HistoryPolicy
 from sensor_msgs.msg import CompressedImage
 from geometry_msgs.msg import Twist
+from std_msgs.msg import String
 
 
 
@@ -386,6 +387,11 @@ class SegInferenceNode(Node):
         self.debug_path_pub = self.create_publisher(
             CompressedImage,
             '/debug/path/compressed',
+            debug_qos
+        )
+        self.debug_text_pub = self.create_publisher(
+            String,
+            '/debug/text',
             debug_qos
         )
 
@@ -763,42 +769,51 @@ class SegInferenceNode(Node):
         t_cb_1 = perf_counter()
 
         if is_stopped:
-            if self.frame_count % self.log_every_n == 0:
-                raw_error_txt = f"{raw_error:.2f}" if raw_error is not None else "None"
-                self.get_logger().warn(
-                    f'Frame {self.frame_count} | '
-                    f'callback_total={(t_cb_1 - t_cb_0)*1000:.1f} ms | '
-                    f'decode={(t_decode_1 - t_decode_0)*1000:.1f} ms | '
-                    f'preprocess={(t1 - t0)*1000:.1f} ms | '
-                    f'inference={(t2 - t1)*1000:.1f} ms | '
-                    f'path_finding={(t4 - t3)*1000:.1f} ms | '
-                    f'STOP | pf_status={pf_status} | conf={confidence:.2f} | '
-                    f'band_ratio={band_on_path_ratio:.2f} | strip_ratio={strip_tracking_ratio:.2f} | '
-                    f'raw_error={raw_error_txt} | side={side} | '
-                    f'filter={filter_status} | lost_count={self.lost_count}'
-                )
-            return
-
-
-
-
-        if self.frame_count % self.log_every_n == 0:
             raw_error_txt = f"{raw_error:.2f}" if raw_error is not None else "None"
-            filtered_error_txt = f"{filtered_error:.2f}" if filtered_error is not None else "None"
-            self.get_logger().info(
+            log_str = (
                 f'Frame {self.frame_count} | '
                 f'callback_total={(t_cb_1 - t_cb_0)*1000:.1f} ms | '
                 f'decode={(t_decode_1 - t_decode_0)*1000:.1f} ms | '
                 f'preprocess={(t1 - t0)*1000:.1f} ms | '
                 f'inference={(t2 - t1)*1000:.1f} ms | '
                 f'path_finding={(t4 - t3)*1000:.1f} ms | '
-                f'cmd_publish={(t_cmd_pub_1 - t_cmd_pub_0)*1000:.1f} ms | '
-                f'pf_status={pf_status} | conf={confidence:.2f} | '
+                f'STOP | pf_status={pf_status} | conf={confidence:.2f} | '
                 f'band_ratio={band_on_path_ratio:.2f} | strip_ratio={strip_tracking_ratio:.2f} | '
-                f'side={side} | raw_error={raw_error_txt} | '
-                f'filtered_error={filtered_error_txt}px | '
-                f'filter={filter_status} | v={v:.3f} | w={w:.3f}'
+                f'raw_error={raw_error_txt} | side={side} | '
+                f'filter={filter_status} | lost_count={self.lost_count}'
             )
+            # Pubblica la stringa di debug sul topic
+            txt_msg = String()
+            txt_msg.data = log_str
+            self.debug_text_pub.publish(txt_msg)
+
+            if self.frame_count % self.log_every_n == 0:
+                self.get_logger().warn(log_str)
+            return
+
+        raw_error_txt = f"{raw_error:.2f}" if raw_error is not None else "None"
+        filtered_error_txt = f"{filtered_error:.2f}" if filtered_error is not None else "None"
+        log_str = (
+            f'Frame {self.frame_count} | '
+            f'callback_total={(t_cb_1 - t_cb_0)*1000:.1f} ms | '
+            f'decode={(t_decode_1 - t_decode_0)*1000:.1f} ms | '
+            f'preprocess={(t1 - t0)*1000:.1f} ms | '
+            f'inference={(t2 - t1)*1000:.1f} ms | '
+            f'path_finding={(t4 - t3)*1000:.1f} ms | '
+            f'cmd_publish={(t_cmd_pub_1 - t_cmd_pub_0)*1000:.1f} ms | '
+            f'pf_status={pf_status} | conf={confidence:.2f} | '
+            f'band_ratio={band_on_path_ratio:.2f} | strip_ratio={strip_tracking_ratio:.2f} | '
+            f'side={side} | raw_error={raw_error_txt} | '
+            f'filtered_error={filtered_error_txt}px | '
+            f'filter={filter_status} | v={v:.3f} | w={w:.3f}'
+        )
+        # Pubblica la stringa di debug sul topic
+        txt_msg = String()
+        txt_msg.data = log_str
+        self.debug_text_pub.publish(txt_msg)
+
+        if self.frame_count % self.log_every_n == 0:
+            self.get_logger().info(log_str)
 
 
 

@@ -20,7 +20,8 @@ ros2 bag record -o debug_filter4 \
   /cmd_vel \
   /debug/segmentation/compressed \
   /debug/roi/compressed \
-  /debug/path/compressed
+  /debug/path/compressed \
+  /debug/text
 
   STREAMING
 ros2 run web_video_server web_video_server --ros-args -p port:=8080 -p address:=0.0.0.0

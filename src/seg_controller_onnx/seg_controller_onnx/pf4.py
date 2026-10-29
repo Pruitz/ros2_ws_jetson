@@ -36,7 +36,7 @@ def _irls(ys, xs, iters=4, sigma=18.0):
 def path_finder(
     pred_mask, #input of the function, is a 2D binarymatrix (predicted mask) with shape 224x224
     path_class=1, # pixel with value 1 representing the filare, 0 all others
-    min_row_ratio=0.30, # top portion of the image excluded from analysis
+    min_row_ratio=0.50, # top portion of the image excluded from analysis
     n_strips=24, # number of horizontal strips used for tracking
     min_component_area=500, # remove small components
     min_interval_width=8, # remove intervals narrower than this width
