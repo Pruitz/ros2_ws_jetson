@@ -59,9 +59,21 @@ from .pf4 import path_finder
 
 
 
+from .debug_visualizer import (
+    build_debug_image,
+    build_debug_roi_image,
+    build_debug_color_path_image,
+    cv2_to_compressed_msg,
+)
+
 TARGET_W = 224
 TARGET_H = 224
 ERROR_ROW_RATIO = 0.50
+
+# VARIABILE DI DEBUG VIDEO:
+# True  = genera e pubblica i 3 topic video (/debug/segmentation, /debug/roi, /debug/path) - identico ad adesso
+# False = disattiva il rendering grafico e la compressione JPEG, massimizzando gli FPS (risparmia ~15ms di CPU)
+ENABLE_DEBUG_IMAGES = True
 
 
 
@@ -71,100 +83,6 @@ def resize_frame(frame):
 
 
 
-
-
-def mask_to_bgr(mask):
-    mask = mask.astype(np.uint8)
-    h, w = mask.shape
-    vis = np.zeros((h, w, 3), dtype=np.uint8)
-    vis[mask == 0] = (0, 0, 0)
-    vis[mask == 1] = (0, 255, 0)
-    vis[mask == 2] = (0, 0, 255)
-    vis[mask == 3] = (255, 0, 0)
-    return vis
-
-
-def draw_model_projection(image, model, mask_shape, y_start, y_end, color, thickness=2):
-    if model is None:
-        return
-
-    mask_h, mask_w = mask_shape
-    image_h, image_w = image.shape[:2]
-    scale_x = image_w / mask_w
-    scale_y = image_h / mask_h
-    previous_point = None
-
-    for y in range(max(0, int(y_start)), min(mask_h, int(y_end))):
-        x = model["m"] * y + model["q"]
-        if not 0 <= x < mask_w:
-            previous_point = None
-            continue
-
-        point = (int(round(x * scale_x)), int(round(y * scale_y)))
-        if previous_point is not None:
-            cv2.line(image, previous_point, point, color, thickness, cv2.LINE_AA)
-        previous_point = point
-
-
-def draw_path_models(image, pf_debug, mask_shape, path_matrix=None):
-    mask_h, _ = mask_shape
-    y_start = pf_debug.get("line_start_y", int(mask_h * 0.30))
-    y_end = pf_debug.get("line_end_y", mask_h)
-    if y_start is None:
-        y_start = int(mask_h * 0.30)
-    if y_end is None:
-        y_end = mask_h
-
-    # Bordi laterali opzionali: supporta left_edge_model e left_model (RANSAC).
-    # Se None (es. in pf_centri o pf_histogram), non disegna nulla e non crasha.
-    left_edge = pf_debug.get("left_edge_model") or pf_debug.get("left_model")
-    right_edge = pf_debug.get("right_edge_model") or pf_debug.get("right_model")
-    center_model = pf_debug.get("centerline_model")
-
-    if left_edge is not None:
-        draw_model_projection(image, left_edge, mask_shape, y_start, y_end, (255, 0, 0))
-    if right_edge is not None:
-        draw_model_projection(image, right_edge, mask_shape, y_start, y_end, (0, 255, 0))
-
-    if center_model is not None:
-        draw_model_projection(image, center_model, mask_shape, y_start, y_end, (0, 0, 255))
-    elif path_matrix is not None:
-        # Fallback se manca centerline_model analitico: disegna i punti di path_matrix
-        image_h, image_w = image.shape[:2]
-        scale_x = image_w / mask_shape[1]
-        scale_y = image_h / mask_shape[0]
-        for y, x in np.argwhere(path_matrix > 0):
-            pt = (int(round(x * scale_x)), int(round(y * scale_y)))
-            cv2.circle(image, pt, 2, (0, 0, 255), -1)
-
-
-def draw_lateral_error(image, mask_shape, raw_error_px, side):
-    mask_h, mask_w = mask_shape
-    image_h, image_w = image.shape[:2]
-    scale_x = image_w / mask_w
-    scale_y = image_h / mask_h
-    y_ref = int(mask_h * ERROR_ROW_RATIO)
-    center_x = mask_w / 2.0
-
-    if raw_error_px is not None:
-        target_x = center_x + raw_error_px
-        start = (int(round(center_x * scale_x)), int(round(y_ref * scale_y)))
-        end = (
-            int(round(np.clip(target_x, 0, mask_w - 1) * scale_x)),
-            start[1],
-        )
-        cv2.line(image, start, end, (255, 0, 255), 2, cv2.LINE_AA)
-        cv2.circle(image, end, 4, (255, 255, 255), -1, cv2.LINE_AA)
-        error_text = f"{raw_error_px:+.1f}px"
-    else:
-        error_text = "n/d"
-
-    label = f"Errore laterale: {error_text} ({side})"
-    cv2.rectangle(image, (0, 0), (min(image_w - 1, 330), 27), (0, 0, 0), -1)
-    cv2.putText(
-        image, label, (8, 19), cv2.FONT_HERSHEY_SIMPLEX, 0.48,
-        (255, 255, 255), 1, cv2.LINE_AA,
-    )
 
 
 def central_pixel_side_from_model(pf_debug, path_matrix):
@@ -204,91 +122,6 @@ def central_pixel_side_from_model(pf_debug, path_matrix):
 
     return error, side
 
-
-
-
-def build_debug_image(
-    pred_mask,
-    path_matrix,
-    raw_error_px,
-    filtered_error,
-    side,
-    confidence,
-    pf_status,
-):
-    # Base: segmentation mask colored
-    debug = mask_to_bgr(pred_mask)
-    h, w = debug.shape[:2]
-    center_x = int((w - 1) // 2)
-
-    # draw vertical center line
-    cv2.line(debug, (center_x, 0), (center_x, h - 1), (255, 255, 255), 1, lineType=cv2.LINE_AA)
-
-    # Draw path_matrix as a smooth yellow polyline (one x per y) — OPAQUE, disegnata direttamente su debug
-    points = []
-    for y in range(h):
-        row = path_matrix[y]
-        if np.any(row > 0):
-            xs = np.where(row > 0)[0]
-            x = int(np.round(xs.mean()))
-            points.append((x, y))
-
-    if len(points) > 1:
-        pts = np.array(points, dtype=np.int32)
-        cv2.polylines(debug, [pts], isClosed=False, color=(0, 255, 255), thickness=2, lineType=cv2.LINE_AA)
-    elif len(points) == 1:
-        x, y = points[0]
-        cv2.circle(debug, (x, y), 3, (0, 255, 255), -1)
-
-    # Draw lateral error as a single horizontal line at ref_y
-    y_ref = int(h * ERROR_ROW_RATIO)
-
-    if raw_error_px is not None:
-        raw_x = int(round(center_x + raw_error_px))
-        raw_x = max(0, min(w - 1, raw_x))
-        cv2.line(debug, (center_x, y_ref), (raw_x, y_ref), (255, 0, 255), 2, lineType=cv2.LINE_AA)
-        cv2.circle(debug, (raw_x, y_ref), 4, (255, 255, 255), -1)
-
-    cv2.putText(debug, f"side={side}", (10, 20),
-                cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1, cv2.LINE_AA)
-    cv2.putText(debug, f"conf={confidence:.2f}", (10, 42),
-                cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1, cv2.LINE_AA)
-    cv2.putText(debug, f"pf_status={pf_status}", (10, 64),
-                cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1, cv2.LINE_AA)
-    if filtered_error is not None:
-        cv2.putText(debug, f"filtered_error={filtered_error:.2f}px", (10, 86),
-                    cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1, cv2.LINE_AA)
-    if raw_error_px is not None:
-        cv2.putText(debug, f"raw_error={raw_error_px:.2f}px", (10, 108),
-                    cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1, cv2.LINE_AA)
-
-    return debug
-
-def build_debug_roi_image(roi_binary, pf_debug, path_matrix, raw_error_px, side):
-    # Base: roi binaria pulita (bianco = path pulito, nero = resto)
-    debug = cv2.cvtColor(roi_binary, cv2.COLOR_GRAY2BGR)
-    draw_path_models(debug, pf_debug, path_matrix.shape, path_matrix=path_matrix)
-    draw_lateral_error(debug, path_matrix.shape, raw_error_px, side)
-
-    return debug
-
-
-def build_debug_color_path_image(frame, pf_debug, path_matrix, raw_error_px, side):
-    debug = frame.copy()
-    draw_path_models(debug, pf_debug, path_matrix.shape, path_matrix=path_matrix)
-    draw_lateral_error(debug, path_matrix.shape, raw_error_px, side)
-
-    return debug
-
-def cv2_to_compressed_msg(img, stamp):
-    msg = CompressedImage()
-    msg.header.stamp = stamp
-    msg.format = "jpeg"
-    ok, encoded = cv2.imencode(".jpg", img, [int(cv2.IMWRITE_JPEG_QUALITY), 90])
-    if not ok:
-        return None
-    msg.data = encoded.tobytes()
-    return msg
 
 
 
@@ -370,6 +203,10 @@ class SegInferenceNode(Node):
 
 
         self.cmd_pub = self.create_publisher(Twist, '/cmd_vel', 20)
+
+        self.declare_parameter('enable_debug_images', ENABLE_DEBUG_IMAGES)
+        self.enable_debug_images = bool(self.get_parameter('enable_debug_images').value)
+        self.get_logger().info(f'Debug video/immagini abilitato: {self.enable_debug_images}')
 
 
 
@@ -661,7 +498,7 @@ class SegInferenceNode(Node):
 
 
 
-        camera_frame = frame.copy()
+        camera_frame = frame.copy() if self.enable_debug_images else None
         t0 = perf_counter()
         frame = resize_frame(frame)
         t1 = perf_counter()
@@ -731,40 +568,43 @@ class SegInferenceNode(Node):
             self.cmd_pub.publish(cmd)
             t_cmd_pub_1 = perf_counter()
 
-        # === 2. GENERAZIONE E PUBBLICAZIONE DEBUG (DOPO L'INVIO AL ROBOT) ===
-        debug_img = build_debug_image(
-            pred_mask,
-            path_matrix,
-            raw_error,
-            filtered_error,
-            side,
-            confidence,
-            pf_status,
-        )
+        # === 2. GENERAZIONE E PUBBLICAZIONE DEBUG (SE ABILITATO) ===
+        if self.enable_debug_images:
+            debug_img = build_debug_image(
+                pred_mask,
+                path_matrix,
+                raw_error,
+                filtered_error,
+                side,
+                confidence,
+                pf_status,
+            )
 
-        # immagine debug seg
-        debug_msg = cv2_to_compressed_msg(debug_img, msg.header.stamp)
-        if debug_msg is not None:
-            self.debug_img_pub.publish(debug_msg)
-        # immagine debug roi
-        if roi_binary is None:
-            roi_y0 = int(pred_mask.shape[0] * 0.30)
-            roi_binary = np.zeros_like(pred_mask, dtype=np.uint8)
-            roi_binary[roi_y0:, :] = (pred_mask[roi_y0:, :] == 1).astype(np.uint8) * 255
+            # immagine debug seg
+            debug_msg = cv2_to_compressed_msg(debug_img, msg.header.stamp)
+            if debug_msg is not None:
+                self.debug_img_pub.publish(debug_msg)
 
-        debug_roi_img = build_debug_roi_image(
-            roi_binary, pf_debug, path_matrix, raw_error, side
-        )
-        debug_roi_msg = cv2_to_compressed_msg(debug_roi_img, msg.header.stamp)
-        if debug_roi_msg is not None:
-            self.debug_roi_pub.publish(debug_roi_msg)
+            # immagine debug roi
+            if roi_binary is None:
+                roi_y0 = int(pred_mask.shape[0] * 0.30)
+                roi_binary = np.zeros_like(pred_mask, dtype=np.uint8)
+                roi_binary[roi_y0:, :] = (pred_mask[roi_y0:, :] == 1).astype(np.uint8) * 255
 
-        debug_path_img = build_debug_color_path_image(
-            camera_frame, pf_debug, path_matrix, raw_error, side
-        )
-        debug_path_msg = cv2_to_compressed_msg(debug_path_img, msg.header.stamp)
-        if debug_path_msg is not None:
-            self.debug_path_pub.publish(debug_path_msg)
+            debug_roi_img = build_debug_roi_image(
+                roi_binary, pf_debug, path_matrix, raw_error, side
+            )
+            debug_roi_msg = cv2_to_compressed_msg(debug_roi_img, msg.header.stamp)
+            if debug_roi_msg is not None:
+                self.debug_roi_pub.publish(debug_roi_msg)
+
+            if camera_frame is not None:
+                debug_path_img = build_debug_color_path_image(
+                    camera_frame, pf_debug, path_matrix, raw_error, side
+                )
+                debug_path_msg = cv2_to_compressed_msg(debug_path_img, msg.header.stamp)
+                if debug_path_msg is not None:
+                    self.debug_path_pub.publish(debug_path_msg)
 
         t_cb_1 = perf_counter()
 
