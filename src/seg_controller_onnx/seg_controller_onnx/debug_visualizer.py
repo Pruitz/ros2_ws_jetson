@@ -88,6 +88,19 @@ def draw_lateral_error(image, mask_shape, raw_error_px, side, error_row_ratio=0.
     center_x = mask_w / 2.0
 
     if raw_error_px is not None:
+        error_text = f"{raw_error_px:+.1f}px"
+    else:
+        error_text = "n/d"
+
+    # Banner di stato in alto a sinistra
+    label = f"Errore laterale: {error_text} ({side})"
+    cv2.rectangle(image, (0, 0), (min(image_w - 1, 330), 27), (0, 0, 0), -1)
+    cv2.putText(
+        image, label, (8, 19), cv2.FONT_HERSHEY_SIMPLEX, 0.48,
+        (255, 255, 255), 1, cv2.LINE_AA,
+    )
+
+    if raw_error_px is not None:
         target_x = center_x + raw_error_px
         start = (int(round(center_x * scale_x)), int(round(y_ref * scale_y)))
         end = (
@@ -98,16 +111,6 @@ def draw_lateral_error(image, mask_shape, raw_error_px, side, error_row_ratio=0.
         cv2.line(image, start, end, (255, 0, 255), 2, cv2.LINE_AA)
         # Puntino bianco al centro del corridoio
         cv2.circle(image, end, 4, (255, 255, 255), -1, cv2.LINE_AA)
-        error_text = f"{raw_error_px:+.1f}px"
-    else:
-        error_text = "n/d"
-
-    label = f"Errore laterale: {error_text} ({side})"
-    cv2.rectangle(image, (0, 0), (min(image_w - 1, 330), 27), (0, 0, 0), -1)
-    cv2.putText(
-        image, label, (8, 19), cv2.FONT_HERSHEY_SIMPLEX, 0.48,
-        (255, 255, 255), 1, cv2.LINE_AA,
-    )
 
 
 def build_debug_image(

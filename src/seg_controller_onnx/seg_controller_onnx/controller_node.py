@@ -68,7 +68,7 @@ from .debug_visualizer import (
 
 TARGET_W = 224
 TARGET_H = 224
-ERROR_ROW_RATIO = 0.50
+ERROR_ROW_RATIO = 0.1
 
 # VARIABILE DI DEBUG VIDEO:
 # True  = genera e pubblica i 3 topic video (/debug/segmentation, /debug/roi, /debug/path) - identico ad adesso
@@ -578,6 +578,7 @@ class SegInferenceNode(Node):
                 side,
                 confidence,
                 pf_status,
+                error_row_ratio=ERROR_ROW_RATIO,
             )
 
             # immagine debug seg
@@ -592,7 +593,8 @@ class SegInferenceNode(Node):
                 roi_binary[roi_y0:, :] = (pred_mask[roi_y0:, :] == 1).astype(np.uint8) * 255
 
             debug_roi_img = build_debug_roi_image(
-                roi_binary, pf_debug, path_matrix, raw_error, side
+                roi_binary, pf_debug, path_matrix, raw_error, side,
+                error_row_ratio=ERROR_ROW_RATIO,
             )
             debug_roi_msg = cv2_to_compressed_msg(debug_roi_img, msg.header.stamp)
             if debug_roi_msg is not None:
@@ -600,7 +602,8 @@ class SegInferenceNode(Node):
 
             if camera_frame is not None:
                 debug_path_img = build_debug_color_path_image(
-                    camera_frame, pf_debug, path_matrix, raw_error, side
+                    camera_frame, pf_debug, path_matrix, raw_error, side,
+                    error_row_ratio=ERROR_ROW_RATIO,
                 )
                 debug_path_msg = cv2_to_compressed_msg(debug_path_img, msg.header.stamp)
                 if debug_path_msg is not None:
