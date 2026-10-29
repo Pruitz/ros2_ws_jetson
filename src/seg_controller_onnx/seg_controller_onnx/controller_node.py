@@ -48,8 +48,11 @@ from seg_controller_onnx.onnx_inference import (
     build_onnx_session,
     run_inference_on_frame,
 )
+# Scegli l'algoritmo di path-finding desiderato (tutti hanno la stessa interfaccia):
 from .pf4 import path_finder
-#from .pf_histogram import path_finder
+# from .pf_histogram import path_finder
+# from .pf_centri import path_finder
+# from .pf_ransac import path_finder
 
 
 
@@ -102,21 +105,36 @@ def draw_model_projection(image, model, mask_shape, y_start, y_end, color, thick
         previous_point = point
 
 
-def draw_path_models(image, pf_debug, mask_shape):
+def draw_path_models(image, pf_debug, mask_shape, path_matrix=None):
     mask_h, _ = mask_shape
     y_start = pf_debug.get("line_start_y", int(mask_h * 0.30))
     y_end = pf_debug.get("line_end_y", mask_h)
-    if y_start is None or y_end is None:
-        return
+    if y_start is None:
+        y_start = int(mask_h * 0.30)
+    if y_end is None:
+        y_end = mask_h
 
-    for key, color in (
-        ("left_edge_model", (255, 0, 0)),
-        ("right_edge_model", (0, 255, 0)),
-        ("centerline_model", (0, 0, 255)),
-    ):
-        draw_model_projection(
-            image, pf_debug.get(key), mask_shape, y_start, y_end, color
-        )
+    # Bordi laterali opzionali: supporta left_edge_model e left_model (RANSAC).
+    # Se None (es. in pf_centri o pf_histogram), non disegna nulla e non crasha.
+    left_edge = pf_debug.get("left_edge_model") or pf_debug.get("left_model")
+    right_edge = pf_debug.get("right_edge_model") or pf_debug.get("right_model")
+    center_model = pf_debug.get("centerline_model")
+
+    if left_edge is not None:
+        draw_model_projection(image, left_edge, mask_shape, y_start, y_end, (255, 0, 0))
+    if right_edge is not None:
+        draw_model_projection(image, right_edge, mask_shape, y_start, y_end, (0, 255, 0))
+
+    if center_model is not None:
+        draw_model_projection(image, center_model, mask_shape, y_start, y_end, (0, 0, 255))
+    elif path_matrix is not None:
+        # Fallback se manca centerline_model analitico: disegna i punti di path_matrix
+        image_h, image_w = image.shape[:2]
+        scale_x = image_w / mask_shape[1]
+        scale_y = image_h / mask_shape[0]
+        for y, x in np.argwhere(path_matrix > 0):
+            pt = (int(round(x * scale_x)), int(round(y * scale_y)))
+            cv2.circle(image, pt, 2, (0, 0, 255), -1)
 
 
 def draw_lateral_error(image, mask_shape, raw_error_px, side):
@@ -148,63 +166,31 @@ def draw_lateral_error(image, mask_shape, raw_error_px, side):
     )
 
 
-
-
-
-# def central_pixel_side(path_matrix):
-#     """
-#     Calcola l'errore laterale cercando la centerline su un intervallo di righe
-#     invece che su una riga fissa. Più robusto quando la centerline disegnata
-#     da PF parte più in basso.
-#     """
-#     h, w = path_matrix.shape
-
-#     # Riga di riferimento centrale (70% dall'alto)
-#     row_center = int(h * ERROR_ROW_RATIO)
-
-#     # Intervallo di righe da scandire (±15% intorno al centro)
-#     row_span = int(h * 0.15)
-#     row_start = max(0, row_center - row_span)
-#     row_end = min(h - 1, row_center + row_span)
-
-#     # Scorro le righe dall'alto verso il basso e prendo la prima con pixel
-#     for row in range(row_start, row_end + 1):
-#         cols = np.where(path_matrix[row] > 0)[0]
-#         if len(cols) == 0:
-#             continue
-
-#         pixel_col = float(np.mean(cols))
-#         error = pixel_col - (w / 2.0)
-
-#         if error > 0:
-#             side = "destra"
-#         elif error < 0:
-#             side = "sinistra"
-#         else:
-#             side = "centro"
-
-#         return error, side
-
-#     # Nessuna riga con pixel trovata
-#     return None, "no_pixel"
-
-
 def central_pixel_side_from_model(pf_debug, path_matrix):
     """
-    Calcola l'errore laterale usando direttamente il modello della centerline.
+    Calcola l'errore laterale usando primariamente il modello analitico della centerline.
+    Se non presente, usa come fallback la scansione diretta della path_matrix.
     """
     center_model = pf_debug.get("centerline_model")
-    if center_model is None:
-        return None, "no_model"
-
     h, w = path_matrix.shape
-
-    # y di riferimento: 70% dall'alto (stessa logica di prima)
     y_ref = int(h * ERROR_ROW_RATIO)
     y_ref = max(0, min(h - 1, y_ref))
 
-    # x della centerline a quella y: x = m * y + q
-    x_center = center_model["m"] * y_ref + center_model["q"]
+    if center_model is not None:
+        x_center = center_model["m"] * y_ref + center_model["q"]
+    else:
+        # Fallback robusto su path_matrix intorno a y_ref
+        row_span = int(h * 0.15)
+        row_start = max(0, y_ref - row_span)
+        row_end = min(h - 1, y_ref + row_span)
+        found_x = []
+        for row in range(row_start, row_end + 1):
+            cols = np.where(path_matrix[row] > 0)[0]
+            if len(cols) > 0:
+                found_x.append(float(np.mean(cols)))
+        if not found_x:
+            return None, "no_model"
+        x_center = float(np.mean(found_x))
 
     error = x_center - (w / 2.0)
 
@@ -216,6 +202,7 @@ def central_pixel_side_from_model(pf_debug, path_matrix):
         side = "centro"
 
     return error, side
+
 
 
 
@@ -279,7 +266,7 @@ def build_debug_image(
 def build_debug_roi_image(roi_binary, pf_debug, path_matrix, raw_error_px, side):
     # Base: roi binaria pulita (bianco = path pulito, nero = resto)
     debug = cv2.cvtColor(roi_binary, cv2.COLOR_GRAY2BGR)
-    draw_path_models(debug, pf_debug, path_matrix.shape)
+    draw_path_models(debug, pf_debug, path_matrix.shape, path_matrix=path_matrix)
     draw_lateral_error(debug, path_matrix.shape, raw_error_px, side)
 
     return debug
@@ -287,7 +274,7 @@ def build_debug_roi_image(roi_binary, pf_debug, path_matrix, raw_error_px, side)
 
 def build_debug_color_path_image(frame, pf_debug, path_matrix, raw_error_px, side):
     debug = frame.copy()
-    draw_path_models(debug, pf_debug, path_matrix.shape)
+    draw_path_models(debug, pf_debug, path_matrix.shape, path_matrix=path_matrix)
     draw_lateral_error(debug, path_matrix.shape, raw_error_px, side)
 
     return debug
@@ -336,7 +323,7 @@ class SegInferenceNode(Node):
         model_path = (
             Path(__file__).resolve().parent
             / 'models'
-            / 'lraspp_224x224_allPlants.onnx'
+            / 'lraspp_224x224.onnx'
         )
 
 
@@ -754,13 +741,17 @@ class SegInferenceNode(Node):
         if debug_msg is not None:
             self.debug_img_pub.publish(debug_msg)
         # immagine debug roi
-        if roi_binary is not None:
-            debug_roi_img = build_debug_roi_image(
-                roi_binary, pf_debug, path_matrix, raw_error, side
-            )
-            debug_roi_msg = cv2_to_compressed_msg(debug_roi_img, msg.header.stamp)
-            if debug_roi_msg is not None:
-                self.debug_roi_pub.publish(debug_roi_msg)
+        if roi_binary is None:
+            roi_y0 = int(pred_mask.shape[0] * 0.30)
+            roi_binary = np.zeros_like(pred_mask, dtype=np.uint8)
+            roi_binary[roi_y0:, :] = (pred_mask[roi_y0:, :] == 1).astype(np.uint8) * 255
+
+        debug_roi_img = build_debug_roi_image(
+            roi_binary, pf_debug, path_matrix, raw_error, side
+        )
+        debug_roi_msg = cv2_to_compressed_msg(debug_roi_img, msg.header.stamp)
+        if debug_roi_msg is not None:
+            self.debug_roi_pub.publish(debug_roi_msg)
 
         debug_path_img = build_debug_color_path_image(
             camera_frame, pf_debug, path_matrix, raw_error, side

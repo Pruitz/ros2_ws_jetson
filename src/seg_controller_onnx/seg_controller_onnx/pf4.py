@@ -51,6 +51,8 @@ def path_finder(
     max_gap_strips=3, # maximum number of consecutive strips without tracking
     ok_conf_threshold=0.60, # state threshold for considering the path as "ok"
     degraded_conf_threshold=0.38, # state threshold for considering the path as "degraded"
+    min_valid_rows_ratio=0.10, # minimum valid corridor length after truncation, as fraction of ROI height
+    cross_tolerance_ratio=0.05, # tolerated edge crossing above the observed region, as fraction of H
 ):
     """Trova e traccia il centro di un filare nella maschera segmentata.
 
@@ -326,6 +328,33 @@ def path_finder(
     # 8. Fit IRLS e verifica geometrica: prepara campioni indipendenti per i
     # bordi non tagliati, poi stima le due rette in modo robusto agli outlier.
 
+    # Se le rette si incrociano dentro la zona osservata, i punti lontani (sopra
+    # l'incrocio) deformano il fit: li scarto e rifitto, cosi' il corridoio
+    # viene troncato al punto in cui finisce davvero.
+    for _ in range(3):
+        pl = [p for p in points if not p["touches_left"]]
+        pr = [p for p in points if not p["touches_right"]]
+        if len(pl) < 2 or len(pr) < 2:
+            break
+        ml, _r = _irls(np.array([p["y"] for p in pl], np.float32),
+                       np.array([p["x0"] for p in pl], np.float32), robust_iters, robust_sigma)
+        mr, _r = _irls(np.array([p["y"] for p in pr], np.float32),
+                       np.array([p["x1"] for p in pr], np.float32), robust_iters, robust_sigma)
+        if ml is None or mr is None:
+            break
+        d_m = mr["m"] - ml["m"]
+        d_q = mr["q"] - ml["q"]
+        if d_m <= 1e-6:
+            break
+        y_cut = (min_interval_width - d_q) / d_m
+        top_y = min(p["y"] for p in points)
+        if y_cut <= top_y:
+            break
+        trimmed = [p for p in points if p["y"] >= y_cut]
+        if len(trimmed) < 3:
+            break
+        points = trimmed
+
     #salvo che non toccano i bordi per avere punti affidabili per il fit dei bordi del path
     left = [p for p in points if not p["touches_left"]]
     right = [p for p in points if not p["touches_right"]]
@@ -354,9 +383,41 @@ def path_finder(
     # Verifica l'ordine dei bordi e misura larghezza e residui del fit.
     # Campioni 16 valori di y tra il minimo e il massimo delle osservazioni dei due bordi;
     # Per ogni y, calcoli la larghezza del corridoio dal modello:
-    y_eval = np.linspace(min(yl.min(), yr.min()), max(yl.max(), yr.max()), 16)
+    y_obs_top = float(min(yl.min(), yr.min()))
+    y_obs_bottom = float(max(yl.max(), yr.max()))
+
+    # Larghezza modellata: w(y) = dm*y + dq. Se le rette si incrociano, il
+    # corridoio e' valido solo dove w(y) >= min_interval_width: invece di
+    # scartare il risultato, bordi e mezzeria vengono troncati all'incrocio.
+    dm = right_model["m"] - left_model["m"]
+    dq = right_model["q"] - left_model["q"]
+    y_valid_top = y_obs_top
+    y_valid_bottom = float(H - 1)
+    if abs(dm) < 1e-6:
+        width_ok = dq >= min_interval_width
+    else:
+        y_thr = (min_interval_width - dq) / dm
+        if dm > 0:
+            y_valid_top = max(y_valid_top, y_thr)
+        else:
+            y_valid_bottom = min(y_valid_bottom, y_thr)
+        # Un incrocio dentro la zona osservata indica un fit incoerente
+        # (bordi scambiati o componenti distinte), non un corridoio che finisce.
+        crossing_in_observed = (
+            y_thr > y_obs_top + cross_tolerance_ratio * H
+            and y_thr < y_obs_bottom
+        )
+        width_ok = (
+            not crossing_in_observed
+            and y_valid_bottom - y_valid_top >= min_valid_rows_ratio * (H - y0)
+        )
+
+    y_valid_top = int(np.ceil(y_valid_top))
+    if width_ok:
+        y_eval = np.linspace(y_valid_top, y_valid_bottom, 16)
+    else:
+        y_eval = np.linspace(y_obs_top, y_obs_bottom, 16)
     widths = _line(right_model, y_eval) - _line(left_model, y_eval)
-    width_ok = bool(np.all(widths > 0))  # True se il bordo destro è sempre a destra del sinistro
     width = float(np.median(widths))
     
     # Calcolo di width_error: usa i punti osservati per rilevare artefatti locali,
@@ -385,7 +446,9 @@ def path_finder(
         *[p["left_support"] for p in left],
         *[p["right_support"] for p in right],
     ]))
-    tracking = len(points) / max(len(strips), 1)
+    # Le strip oltre la fine del corridoio (sopra l'incrocio) non penalizzano il tracking.
+    expected_strips = [s for s in strips if s["y"] >= y_valid_top] if width_ok else strips
+    tracking = len(points) / max(len(expected_strips), 1)
     fit_score = np.clip(1.0 - residual / max(robust_sigma, 1e-6), 0.0, 1.0)
     width_error_scale=0.30
     width_score = np.clip(1.0 - width_error / max(width_error_scale, 1e-6),0.0,1.0,)    
@@ -446,7 +509,8 @@ def path_finder(
         if last_tracked_strip is not None
         else int(np.floor(y_eval.min()))
     )
-    y_end = H
+    y_start = max(int(y_start), y_valid_top)
+    y_end = int(y_valid_bottom) + 1
     for y in range(y_start, y_end):
         x = int(np.clip(_line(center_model, y), 0, W - 1))
         output[y, x] = 1.0
@@ -481,3 +545,7 @@ def path_finder(
         "line_end_y": y_end,
         "roi_binary": roi_binary,
     }
+
+
+# Alias retrocompatibile
+path_finder_filari_straight_prior = path_finder
