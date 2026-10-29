@@ -232,6 +232,8 @@ class SegInferenceNode(Node):
             debug_qos
         )
 
+        self.last_timings = {}
+
 
 
 
@@ -610,6 +612,11 @@ class SegInferenceNode(Node):
                     self.debug_path_pub.publish(debug_path_msg)
 
         t_cb_1 = perf_counter()
+        self.last_timings = {
+            "total_ms": (t_cb_1 - t_cb_0) * 1000.0,
+            "inference_ms": (t2 - t1) * 1000.0,
+            "path_finding_ms": (t4 - t3) * 1000.0,
+        }
 
         if is_stopped:
             raw_error_txt = f"{raw_error:.2f}" if raw_error is not None else "None"
