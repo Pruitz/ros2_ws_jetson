@@ -68,12 +68,18 @@ from .debug_visualizer import (
 
 TARGET_W = 224
 TARGET_H = 224
-ERROR_ROW_RATIO = 0.8
+ERROR_ROW_RATIO = 0.7
 
 # VARIABILE DI DEBUG VIDEO:
 # True  = genera e pubblica i 3 topic video (/debug/segmentation, /debug/roi, /debug/path) - identico ad adesso
 # False = disattiva il rendering grafico e la compressione JPEG, massimizzando gli FPS (risparmia ~15ms di CPU)
 ENABLE_DEBUG_IMAGES = True
+
+# FILTRO DI SMOOTHING USCITA STERZO (w):
+# Coefficiente del filtro esponenziale sull'uscita angolare (0.0 < ALPHA_W <= 1.0).
+# 0.30 = rampa morbida di sterzo in ~100ms, elimina scatti e vibrazioni meccaniche
+# 1.00 = nessun filtro sull'uscita (identico al funzionamento precedente)
+ALPHA_W = 0.30
 
 
 
@@ -207,6 +213,11 @@ class SegInferenceNode(Node):
         self.declare_parameter('enable_debug_images', ENABLE_DEBUG_IMAGES)
         self.enable_debug_images = bool(self.get_parameter('enable_debug_images').value)
         self.get_logger().info(f'Debug video/immagini abilitato: {self.enable_debug_images}')
+
+        self.declare_parameter('alpha_w', ALPHA_W)
+        self.alpha_w = float(self.get_parameter('alpha_w').value)
+        self.last_w = 0.0
+        self.get_logger().info(f'Filtro smoothing uscita sterzo (alpha_w): {self.alpha_w}')
 
 
 
@@ -434,34 +445,24 @@ class SegInferenceNode(Node):
 
     def compute_cmd(self, error_px, img_width, confidence, pf_status):
         if error_px is None:
+            self.last_w = 0.0
             return 0.0, 0.0
-
-
-
 
         error_norm = error_px / (img_width / 2.0)
         w_gain = 0.6 + 0.4 * float(np.clip(confidence, 0.0, 1.0))
-        w = -(self.kp_lat * w_gain * error_norm)
+        target_w = -(self.kp_lat * w_gain * error_norm)
+        target_w = float(np.clip(target_w, -self.w_max, self.w_max))
 
+        # Filtro passa-basso esponenziale sull'uscita dello sterzo:
+        # Rende l'attuazione fluida ed elimina scatti e vibrazioni meccaniche
+        w = (1.0 - self.alpha_w) * self.last_w + self.alpha_w * target_w
+        self.last_w = w
 
-
-
-        # Penalità degraded rimossa: se degraded è la condizione normale,
-        # ridurre w al 70% porta il robot a sterzare sempre meno del necessario.
-        # if pf_status == "degraded":
-        #     w *= 0.7
-
-
-
-
-        w = float(np.clip(w, -self.w_max, self.w_max))
         v = self.v_max
         return v, w
 
-
-
-
     def publish_stop(self):
+        self.last_w = 0.0
         cmd = Twist()
         self.cmd_pub.publish(cmd)
 

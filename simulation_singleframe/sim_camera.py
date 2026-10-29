@@ -64,7 +64,7 @@ class VirtualCameraSimulator(Node):
         super().__init__('virtual_camera_simulator')
 
         # === PARAMETRI CONFIGURABILI ===
-        default_img = str(Path(__file__).resolve().parent / "frame000021.png")
+        default_img = str(Path(__file__).resolve().parent / "nonvistpom.png")
         self.declare_parameter('image_path', default_img)
         self.declare_parameter('fps', 30.0)
         self.declare_parameter('max_lateral_m', 0.45) # Limite larghezza corsia serra (+- 45 cm)
