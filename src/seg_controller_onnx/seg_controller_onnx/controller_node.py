@@ -230,9 +230,7 @@ class SegInferenceNode(Node):
             self.csv_writer = csv.writer(self.csv_file)
             if not file_exists:
                 self.csv_writer.writerow([
-                    'frame', 'timestamp', 'total_ms', 'inference_ms',
-                    'path_finding_ms', 'decode_ms', 'preprocess_ms',
-                    'cmd_pub_ms', 'debug_video_enabled', 'pf_status', 'confidence'
+                    'frame', 'debug_video', 'tempo_totale_ms', 'tempo_inferenza_ms', 'tempo_path_extractor_ms'
                 ])
             self.get_logger().info(f'Registrazione benchmark tesi attiva su: {self.benchmark_csv_path}')
 
@@ -641,18 +639,13 @@ class SegInferenceNode(Node):
 
         # Registrazione su file CSV per la Tesi di Laurea (se attiva)
         if self.save_benchmark_csv and self.csv_writer:
+            debug_flag = "ON" if self.enable_debug_images else "OFF"
             self.csv_writer.writerow([
                 self.frame_count,
-                f"{time():.3f}",
+                debug_flag,
                 f"{(t_cb_1 - t_cb_0)*1000:.2f}",
                 f"{(t2 - t1)*1000:.2f}",
                 f"{(t4 - t3)*1000:.2f}",
-                f"{(t_decode_1 - t_decode_0)*1000:.2f}",
-                f"{(t1 - t0)*1000:.2f}",
-                f"{(t_cmd_pub_1 - t_cmd_pub_0)*1000:.2f}",
-                self.enable_debug_images,
-                pf_status,
-                f"{confidence:.2f}",
             ])
 
         if is_stopped:
