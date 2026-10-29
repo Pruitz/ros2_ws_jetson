@@ -25,6 +25,7 @@
 # Se l'errore filtrato oscilla troppo, riduci alpha del filtro.
 from pathlib import Path
 from time import time, perf_counter
+import csv
 
 
 
@@ -68,12 +69,18 @@ from .debug_visualizer import (
 
 TARGET_W = 224
 TARGET_H = 224
-ERROR_ROW_RATIO = 0.1
+ERROR_ROW_RATIO = 0.8
 
 # VARIABILE DI DEBUG VIDEO:
 # True  = genera e pubblica i 3 topic video (/debug/segmentation, /debug/roi, /debug/path) - identico ad adesso
 # False = disattiva il rendering grafico e la compressione JPEG, massimizzando gli FPS (risparmia ~15ms di CPU)
 ENABLE_DEBUG_IMAGES = True
+
+# LOG BENCHMARK PER TESI:
+# True  = registra i tempi frame per frame (totale, inferenza, path extractor) in un file CSV per la tesi
+# False = disattiva la scrittura su file
+SAVE_BENCHMARK_CSV = True
+BENCHMARK_CSV_PATH = "/mnt/nvme/emanuele_project/benchmark_tempi_tesi.csv"
 
 
 
@@ -207,6 +214,27 @@ class SegInferenceNode(Node):
         self.declare_parameter('enable_debug_images', ENABLE_DEBUG_IMAGES)
         self.enable_debug_images = bool(self.get_parameter('enable_debug_images').value)
         self.get_logger().info(f'Debug video/immagini abilitato: {self.enable_debug_images}')
+
+        self.declare_parameter('save_benchmark_csv', SAVE_BENCHMARK_CSV)
+        self.save_benchmark_csv = bool(self.get_parameter('save_benchmark_csv').value)
+        self.declare_parameter('benchmark_csv_path', BENCHMARK_CSV_PATH)
+        self.benchmark_csv_path = str(self.get_parameter('benchmark_csv_path').value)
+
+        self.csv_file = None
+        self.csv_writer = None
+        if self.save_benchmark_csv:
+            csv_path = Path(self.benchmark_csv_path)
+            csv_path.parent.mkdir(parents=True, exist_ok=True)
+            file_exists = csv_path.exists() and csv_path.stat().st_size > 0
+            self.csv_file = open(self.benchmark_csv_path, 'a', newline='', buffering=1)
+            self.csv_writer = csv.writer(self.csv_file)
+            if not file_exists:
+                self.csv_writer.writerow([
+                    'frame', 'timestamp', 'total_ms', 'inference_ms',
+                    'path_finding_ms', 'decode_ms', 'preprocess_ms',
+                    'cmd_pub_ms', 'debug_video_enabled', 'pf_status', 'confidence'
+                ])
+            self.get_logger().info(f'Registrazione benchmark tesi attiva su: {self.benchmark_csv_path}')
 
 
 
@@ -611,6 +639,22 @@ class SegInferenceNode(Node):
 
         t_cb_1 = perf_counter()
 
+        # Registrazione su file CSV per la Tesi di Laurea (se attiva)
+        if self.save_benchmark_csv and self.csv_writer:
+            self.csv_writer.writerow([
+                self.frame_count,
+                f"{time():.3f}",
+                f"{(t_cb_1 - t_cb_0)*1000:.2f}",
+                f"{(t2 - t1)*1000:.2f}",
+                f"{(t4 - t3)*1000:.2f}",
+                f"{(t_decode_1 - t_decode_0)*1000:.2f}",
+                f"{(t1 - t0)*1000:.2f}",
+                f"{(t_cmd_pub_1 - t_cmd_pub_0)*1000:.2f}",
+                self.enable_debug_images,
+                pf_status,
+                f"{confidence:.2f}",
+            ])
+
         if is_stopped:
             raw_error_txt = f"{raw_error:.2f}" if raw_error is not None else "None"
             log_str = (
@@ -658,6 +702,13 @@ class SegInferenceNode(Node):
         if self.frame_count % self.log_every_n == 0:
             self.get_logger().info(log_str)
 
+
+
+    def destroy_node(self):
+        if hasattr(self, 'csv_file') and self.csv_file and not self.csv_file.closed:
+            self.csv_file.flush()
+            self.csv_file.close()
+        super().destroy_node()
 
 
 def main(args=None):
