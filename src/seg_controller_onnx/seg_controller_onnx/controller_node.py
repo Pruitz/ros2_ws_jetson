@@ -81,11 +81,36 @@ ENABLE_DEBUG_IMAGES = True
 # 1.00 = nessun filtro sull'uscita (identico al funzionamento precedente)
 ALPHA_W = 0.30
 
+# ALPHA DINAMICO IN BASE AL FRAMERATE:
+# ALPHA_W e gli alpha del filtro errore valgono alla frequenza ALPHA_REF_FPS.
+# A ogni frame l'alpha viene ricalcolato dal tempo reale tra due frame (dt),
+# cosi' la costante di tempo in secondi resta uguale anche se il nodo gira
+# piu' lento (es. 18.8 Hz con debug video) o piu' veloce.
+#   alpha_eff = 1 - (1 - alpha_ref) ** (dt * ALPHA_REF_FPS)
+# Con dt = 1/ALPHA_REF_FPS si ottiene esattamente alpha_ref.
+ALPHA_REF_FPS = 30.0
+ALPHA_ERR_OK = 0.20         # alpha filtro errore con pf_status = ok
+ALPHA_ERR_DEGRADED = 0.18   # alpha filtro errore con pf_status = degraded
+DT_MIN = 1.0 / 120.0        # limiti di dt per evitare alpha anomali
+DT_MAX = 0.25               # (es. primo frame o pausa della bag)
+
 
 
 
 def resize_frame(frame):
     return cv2.resize(frame, (TARGET_W, TARGET_H), interpolation=cv2.INTER_AREA)
+
+
+def alpha_for_dt(alpha_ref, dt, ref_fps):
+    """
+    Converte un alpha definito alla frequenza ref_fps nell'alpha equivalente
+    per un intervallo dt (secondi). Se dt non e' disponibile usa alpha_ref.
+    """
+    if dt is None or alpha_ref >= 1.0:
+        return alpha_ref
+    if alpha_ref <= 0.0:
+        return 0.0
+    return 1.0 - (1.0 - alpha_ref) ** (dt * ref_fps)
 
 
 
@@ -226,6 +251,16 @@ class SegInferenceNode(Node):
         self.alpha_w = float(self.get_parameter('alpha_w').value)
         self.last_w = 0.0
         self.get_logger().info(f'Filtro smoothing uscita sterzo (alpha_w): {self.alpha_w}')
+
+        self.declare_parameter('alpha_ref_fps', ALPHA_REF_FPS)
+        self.alpha_ref_fps = float(self.get_parameter('alpha_ref_fps').value)
+        self.last_frame_time = None   # istante dell'ultimo frame elaborato
+        self.frame_dt = None          # dt tra gli ultimi due frame elaborati [s]
+        self.get_logger().info(
+            f'Alpha dinamico: alpha_w, alpha errore ok/degraded = '
+            f'{self.alpha_w}, {ALPHA_ERR_OK}/{ALPHA_ERR_DEGRADED} '
+            f'riferiti a {self.alpha_ref_fps} fps'
+        )
 
 
 
@@ -400,11 +435,13 @@ class SegInferenceNode(Node):
 
         # Parametri in base allo stato PF (due regimi semplici)
         if pf_status == "degraded":
-            alpha = 0.18        # quasi uguale a ok
+            alpha_ref = ALPHA_ERR_DEGRADED   # quasi uguale a ok
             jump_thr = 38.0     # soglia rilassata
         else:
-            alpha = 0.20        # reattivo
+            alpha_ref = ALPHA_ERR_OK         # reattivo
             jump_thr = 40.0     # soglia di salto normale
+        # alpha corretto in base al dt reale tra i frame
+        alpha = alpha_for_dt(alpha_ref, self.frame_dt, self.alpha_ref_fps)
 
         # Inizializzo filtered_error se è la prima volta o dopo uno stop/lost
         if self.filtered_error is None:
@@ -463,7 +500,9 @@ class SegInferenceNode(Node):
 
         # Filtro passa-basso esponenziale sull'uscita dello sterzo:
         # Rende l'attuazione fluida ed elimina scatti e vibrazioni meccaniche
-        w = (1.0 - self.alpha_w) * self.last_w + self.alpha_w * target_w
+        # alpha_w corretto in base al dt reale tra i frame
+        alpha_w = alpha_for_dt(self.alpha_w, self.frame_dt, self.alpha_ref_fps)
+        w = (1.0 - alpha_w) * self.last_w + alpha_w * target_w
         self.last_w = w
 
         v = self.v_max
@@ -486,6 +525,12 @@ class SegInferenceNode(Node):
 
         if self.frame_count % self.process_every_n != 0:
             return
+
+        # dt tra questo frame e il precedente frame elaborato, limitato a
+        # [DT_MIN, DT_MAX]; al primo frame resta None e si usa alpha di riferimento
+        if self.last_frame_time is not None:
+            self.frame_dt = float(np.clip(t_cb_0 - self.last_frame_time, DT_MIN, DT_MAX))
+        self.last_frame_time = t_cb_0
 
 
 
@@ -664,7 +709,8 @@ class SegInferenceNode(Node):
             f'band_ratio={band_on_path_ratio:.2f} | strip_ratio={strip_tracking_ratio:.2f} | '
             f'side={side} | raw_error={raw_error_txt} | '
             f'filtered_error={filtered_error_txt}px | '
-            f'filter={filter_status} | v={v:.3f} | w={w:.3f}'
+            f'filter={filter_status} | v={v:.3f} | w={w:.3f} | '
+            f'dt={(self.frame_dt or 0.0)*1000:.1f} ms'
         )
         # Pubblica la stringa di debug sul topic
         txt_msg = String()
