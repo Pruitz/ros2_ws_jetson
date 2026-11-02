@@ -1,4 +1,12 @@
-"""pf_ransac.py
+"""pf_ransac.py: RANSAC sui bordi del corridoio, con il controllo di osservazione minima: lost se un bordo
+osservato copre meno di min_edge_rows righe o se il path ha meno di min_path_area pixel.
+
+pf_ransac_v2: pf_ransac del robot con una sola modifica (righe marcate v2):
+gli estremi di riga che toccano il bordo dell'immagine (entro border_margin px)
+sono tagliati e non vengono usati come punti di bordo. La larghezza e la sua
+regolarita' si calcolano solo sulle righe con entrambi gli estremi validi.
+
+Descrizione originale di pf_ransac.py:
 
 Estrazione geometrica della linea di navigazione basata su RANSAC secondo la
 letteratura (Li et al., Sensors 2025; Bai et al., 2023).
@@ -100,6 +108,9 @@ def path_finder(
     ok_conf_threshold=0.60,
     degraded_conf_threshold=0.38,
     random_state=42,
+    border_margin=2,
+    min_edge_rows=20,
+    min_path_area=1000,
 ):
     """Estrae la mezzeria del filare fittando i contorni laterali con RANSAC (Li et al., 2025; Bai et al., 2023).
 
@@ -170,6 +181,7 @@ def path_finder(
     ys_left, xs_left = [], []
     ys_right, xs_right = [], []
     widths = []
+    n_rows = 0
 
     roi_h = path.shape[0]
     for r in range(roi_h):
@@ -184,18 +196,33 @@ def path_finder(
         if w < min_corridor_width:
             continue
 
+        # v2: un estremo che tocca il bordo dell'immagine non e' il bordo del
+        # corridoio (e' tagliato): si usa solo il lato non tagliato.
+        clip_l = x_l <= border_margin
+        clip_r = x_r >= W - 1 - border_margin
+        n_rows += 1
         abs_y = float(y0 + r)
-        ys_left.append(abs_y)
-        xs_left.append(x_l)
-        ys_right.append(abs_y)
-        xs_right.append(x_r)
-        widths.append(w)
+        if not clip_l:
+            ys_left.append(abs_y)
+            xs_left.append(x_l)
+        if not clip_r:
+            ys_right.append(abs_y)
+            xs_right.append(x_r)
+        if not (clip_l or clip_r):
+            widths.append(w)
 
     min_required_points = 10
     if len(ys_left) < min_required_points or len(ys_right) < min_required_points:
         roi_binary = np.zeros((H, W), np.uint8)
         roi_binary[y0:] = path * 255
         return output, {"status": "lost", "reason": "insufficient_boundary_points", "roi_binary": roi_binary}
+
+    # v3: un bordo visto su poche righe o un path minuscolo (fine serra) non bastano.
+    if (max(ys_left) - min(ys_left) < min_edge_rows or max(ys_right) - min(ys_right) < min_edge_rows
+            or int(path.sum()) < min_path_area):
+        roi_binary = np.zeros((H, W), np.uint8)
+        roi_binary[y0:] = path * 255
+        return output, {"status": "lost", "reason": "edge_too_short_or_small_path", "roi_binary": roi_binary}
 
     ys_left = np.array(ys_left, np.float32)
     xs_left = np.array(xs_left, np.float32)
@@ -237,7 +264,7 @@ def path_finder(
     inlier_ratio_right = float(np.sum(right_inliers)) / max(len(right_inliers), 1)
     inlier_ratio = 0.5 * (inlier_ratio_left + inlier_ratio_right)
 
-    vertical_coverage = float(len(ys_left)) / max(float(roi_h), 1.0)
+    vertical_coverage = float(n_rows) / max(float(roi_h), 1.0)
     fit_score = float(np.clip(1.0 - mean_residual / max(ransac_residual_threshold, 1e-6), 0.0, 1.0))
 
     if len(widths) >= 5:

@@ -50,7 +50,8 @@ from seg_controller_onnx.onnx_inference import (
     run_inference_on_frame,
 )
 # Scegli l'algoritmo di path-finding desiderato (tutti hanno la stessa interfaccia):
-from .pf4 import path_finder
+from .pf5 import path_finder
+# from .pf4 import path_finder
 # from .pf_histogram import path_finder
 # from .pf_centri import path_finder
 # from .pf_ransac import path_finder
