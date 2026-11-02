@@ -53,7 +53,7 @@ from seg_controller_onnx.onnx_inference import (
 )
 # Algoritmo di path-finding: si sceglie all'avvio con il parametro ROS 'path_finder'
 # (tutti hanno la stessa interfaccia). Default: pf5 (Metodo 4 della tesi).
-PATH_FINDERS = ('pf5', 'pf_ransac', 'pf_histogram', 'pf_centri', 'pf_net', 'pf4')
+PATH_FINDERS = ('pf5', 'pf_ransac', 'pf_histogram', 'pf_centri', 'pf_net')
 
 
 
