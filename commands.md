@@ -4,6 +4,9 @@ colcon build --symlink-install
 source install/setup.bash
 ros2 run seg_controller_onnx controller_node
 
+PER SCEGLIERE L'ALGORITMO (default pf5; alternative: pf_ransac, pf_histogram, pf_centri, pf_net)
+ros2 run seg_controller_onnx controller_node --ros-args -p path_finder:=pf_ransac
+
 PER RUNNARE LA BAG
 ros2 bag play "database_bags/insalata_grande1" --clock
 

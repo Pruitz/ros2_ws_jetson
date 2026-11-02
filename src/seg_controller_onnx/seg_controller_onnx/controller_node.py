@@ -39,6 +39,8 @@ from std_msgs.msg import String
 
 
 
+from importlib import import_module
+
 import numpy as np
 import cv2
 
@@ -49,12 +51,9 @@ from seg_controller_onnx.onnx_inference import (
     build_onnx_session,
     run_inference_on_frame,
 )
-# Scegli l'algoritmo di path-finding desiderato (tutti hanno la stessa interfaccia):
-from .pf5 import path_finder
-# from .pf4 import path_finder
-# from .pf_histogram import path_finder
-# from .pf_centri import path_finder
-# from .pf_ransac import path_finder
+# Algoritmo di path-finding: si sceglie all'avvio con il parametro ROS 'path_finder'
+# (tutti hanno la stessa interfaccia). Default: pf5 (Metodo 4 della tesi).
+PATH_FINDERS = ('pf5', 'pf_ransac', 'pf_histogram', 'pf_centri', 'pf_net', 'pf4')
 
 
 
@@ -214,6 +213,14 @@ class SegInferenceNode(Node):
         self.declare_parameter('enable_debug_images', ENABLE_DEBUG_IMAGES)
         self.enable_debug_images = bool(self.get_parameter('enable_debug_images').value)
         self.get_logger().info(f'Debug video/immagini abilitato: {self.enable_debug_images}')
+
+        self.declare_parameter('path_finder', 'pf5')
+        pf_name = str(self.get_parameter('path_finder').value)
+        if pf_name not in PATH_FINDERS:
+            raise ValueError(f"path_finder '{pf_name}' non valido, scegli tra {PATH_FINDERS}")
+        self.path_finder = import_module(f'.{pf_name}', package=__package__).path_finder
+        self.path_finder(np.zeros((224, 224), np.uint8))  # carica subito la sessione di pf_net
+        self.get_logger().info(f'Path finder: {pf_name}')
 
         self.declare_parameter('alpha_w', ALPHA_W)
         self.alpha_w = float(self.get_parameter('alpha_w').value)
@@ -522,7 +529,7 @@ class SegInferenceNode(Node):
 
 
         t3 = perf_counter()
-        path_matrix, pf_debug = path_finder(pred_mask)
+        path_matrix, pf_debug = self.path_finder(pred_mask)
         t4 = perf_counter()
 
 
