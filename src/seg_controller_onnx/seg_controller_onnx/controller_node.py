@@ -188,7 +188,7 @@ class SegInferenceNode(Node):
         model_path = (
             Path(__file__).resolve().parent
             / 'models'
-            / 'lraspp_224x224.onnx'
+            / 'lraspp_224x224_30deg.onnx'
         )
 
 
