@@ -87,14 +87,14 @@ def _track(strips, seed_strip, seed, min_edge_jump, max_gap_strips):
 def path_finder(
     pred_mask,
     path_class=1,
-    min_row_ratio=0.30,          # quota superiore esclusa (ROI dalla riga 67 su 224)
-    n_strips=16,                 # 157 // 16 = 9 px: le strip coprono le 144 righe in basso della ROI
+    min_row_ratio=0.30,          # ROI richiesta dalla riga 67 su 224, poi estesa a n_strips * strip_h righe
+    n_strips=16,                 # strip_h = ceil(157 / 16) = 10 px: 16 strip coprono esattamente la ROI (righe 64-223)
     min_component_area=500,
     min_interval_width=8,
     max_interval_gap=40,
     border_margin=2,
     min_edge_jump=28.0,
-    robust_iters=4,
+    robust_iters=10,
     robust_sigma=18.0,
     seed_bottom_strips=6,
     max_gap_strips=3,
@@ -113,6 +113,8 @@ def path_finder(
 
     # 1. ROI inferiore, maschera binaria del path e pulizia morfologica.
     y0 = int(H * min_row_ratio)
+    # L'altezza delle strip e' arrotondata per eccesso, cosi' n_strips strip coprono tutta la ROI senza righe avanzate.
+    y0 = max(0, H - n_strips * -(-(H - y0) // n_strips))
     path = (pred_mask[y0:] == path_class).astype(np.uint8)
     path = cv2.morphologyEx(path, cv2.MORPH_OPEN,
                             cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (5, 5)))
