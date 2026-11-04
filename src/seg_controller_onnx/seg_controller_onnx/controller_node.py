@@ -118,29 +118,18 @@ def alpha_for_dt(alpha_ref, dt, ref_fps):
 
 def central_pixel_side_from_model(pf_debug, path_matrix):
     """
-    Calcola l'errore laterale usando primariamente il modello analitico della centerline.
-    Se non presente, usa come fallback la scansione diretta della path_matrix.
+    Calcola l'errore laterale dalla mezzeria dell'estrattore alla riga y_ref.
+    Senza mezzeria (estrattore lost) restituisce None: il filtro mantiene
+    l'ultimo errore valido per hold_timeout e poi il robot si ferma.
     """
     center_model = pf_debug.get("centerline_model")
     h, w = path_matrix.shape
     y_ref = int(h * ERROR_ROW_RATIO)
     y_ref = max(0, min(h - 1, y_ref))
 
-    if center_model is not None:
-        x_center = center_model["m"] * y_ref + center_model["q"]
-    else:
-        # Fallback robusto su path_matrix intorno a y_ref
-        row_span = int(h * 0.15)
-        row_start = max(0, y_ref - row_span)
-        row_end = min(h - 1, y_ref + row_span)
-        found_x = []
-        for row in range(row_start, row_end + 1):
-            cols = np.where(path_matrix[row] > 0)[0]
-            if len(cols) > 0:
-                found_x.append(float(np.mean(cols)))
-        if not found_x:
-            return None, "no_model"
-        x_center = float(np.mean(found_x))
+    if center_model is None:
+        return None, "no_model"
+    x_center = center_model["m"] * y_ref + center_model["q"]
 
     error = x_center - (w / 2.0)
 
@@ -585,8 +574,6 @@ class SegInferenceNode(Node):
         strip_tracking_ratio = float(pf_debug.get("strip_tracking_ratio", 0.0))
         # per immagine debug roi
         roi_binary = pf_debug.get("roi_binary", None)
-        strip_points = pf_debug.get("strip_points", [])
-        chosen_points = pf_debug.get("chosen_points", [])
 
         self.last_status = pf_status
 
