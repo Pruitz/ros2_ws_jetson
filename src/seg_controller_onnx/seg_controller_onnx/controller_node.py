@@ -283,7 +283,6 @@ class SegInferenceNode(Node):
         self.filtered_error = None
         self.last_valid_error = None
         self.last_valid_time = 0.0
-        self.lost_count = 0
         self.consecutive_jumps = 0
 
 
@@ -296,7 +295,6 @@ class SegInferenceNode(Node):
 
         self.deadband_px = 4.0
         self.hold_timeout = 0.50   # mantenimento ultimo errore valido su buchi temporanei (~500ms)
-        self.max_lost_frames = 15  # a 30 FPS = ~500ms prima di fermarsi del tutto
 
 
 
@@ -584,15 +582,9 @@ class SegInferenceNode(Node):
         filtered_error, filter_status = self.filter_error(raw_error, confidence, pf_status)
 
 
-        if pf_status == "lost":
-            self.lost_count += 1
-        else:
-            self.lost_count = 0
-
-
         # === 1. CALCOLA E PUBBLICA CMD_VEL SUBITO (MASSIMA PRIORITÀ CONTROLLO) ===
         is_stopped = False
-        if self.lost_count >= self.max_lost_frames or filtered_error is None:
+        if filtered_error is None:
             self.filtered_error = None
             self.last_valid_error = None
             self.consecutive_jumps = 0
@@ -671,7 +663,7 @@ class SegInferenceNode(Node):
                 f'STOP | pf_status={pf_status} | conf={confidence:.2f} | '
                 f'band_ratio={band_on_path_ratio:.2f} | strip_ratio={strip_tracking_ratio:.2f} | '
                 f'raw_error={raw_error_txt} | side={side} | '
-                f'filter={filter_status} | lost_count={self.lost_count}'
+                f'filter={filter_status}'
             )
             # Pubblica la stringa di debug sul topic
             txt_msg = String()
