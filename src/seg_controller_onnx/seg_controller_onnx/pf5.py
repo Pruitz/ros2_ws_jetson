@@ -10,6 +10,22 @@ import cv2
 #    non tagliati (= piu' campioni per i due fit), a parita' quella con costo minore.
 # 3. Il gap della confidence conta solo i buchi interni alla catena,
 #    non le strip perse dopo la fine del corridoio.
+#
+# Modifiche del 2026-11-10 (versione descritta nella tesi, Strip-IRLS):
+# 1. Verifica geometrica (passo 6): se i bordi non convergono verso l'alto
+#    (dm <= 1e-6: paralleli o convergenti verso il basso) il risultato e' lost.
+#    Il robot si muove tra filari paralleli e in prospettiva i bordi del
+#    corridoio convergono verso l'alto, quindi questi casi indicano un fit sbagliato.
+# 2. Controllo dell'incrocio (passo 4): y_cut e' confrontato con il campione
+#    piu' alto, come nel passo 6, invece che con l'intervallo piu' alto.
+# 3. Verifica geometrica (passo 6): lost se y_thr cade piu' di
+#    cross_tolerance_ratio*H sotto il campione piu' alto, anche quando cade
+#    sotto il campione piu' basso (prima quel caso passava).
+# 4. Tracking: conta solo gli intervalli della catena con il centro della strip
+#    nel tratto valido, cioe' le stesse strip del denominatore.
+# 5. Regolarita' della larghezza: con meno di tre intervalli non tagliati il
+#    punteggio e' 0 (larghezza non verificabile), non 1.
+# 6. Merging gap (max_interval_gap) 30 px invece di 40.
 
 
 def _line(model, y):
@@ -91,7 +107,7 @@ def path_finder(
     n_strips=16,                 # strip_h = ceil(157 / 16) = 10 px: 16 strip coprono esattamente la ROI (righe 64-223)
     min_component_area=500,
     min_interval_width=8,
-    max_interval_gap=40,
+    max_interval_gap=30,
     border_margin=2,
     min_edge_jump=28.0,
     robust_iters=10,
@@ -212,7 +228,9 @@ def path_finder(
         if d_m <= 1e-6:
             break
         y_cut = (min_interval_width - d_q) / d_m
-        if y_cut <= min(p["y"] for p in points):
+        # Riferimento: il campione piu' alto (come nella verifica del passo 6),
+        # non l'intervallo piu' alto, che puo' essere tagliato su entrambi i lati.
+        if y_cut <= min(p["y"] for p in pl + pr):
             break
         trimmed = [p for p in points if p["y"] >= y_cut]
         if len(trimmed) < 3:
@@ -241,15 +259,16 @@ def path_finder(
     dq = right_model["q"] - left_model["q"]
     y_valid_top = y_obs_top
     y_valid_bottom = float(H - 1)
-    if abs(dm) < 1e-6:
-        width_ok = dq >= min_interval_width
+    if dm <= 1e-6:
+        # Bordi che non convergono verso l'alto (paralleli o convergenti verso
+        # il basso): sempre rifiutati. Stessa soglia del controllo del passo 4.
+        width_ok = False
     else:
         y_thr = (min_interval_width - dq) / dm
-        if dm > 0:
-            y_valid_top = max(y_valid_top, y_thr)
-        else:
-            y_valid_bottom = min(y_valid_bottom, y_thr)
-        crossing_in_observed = y_obs_top + cross_tolerance_ratio * H < y_thr < y_obs_bottom
+        y_valid_top = max(y_valid_top, y_thr)
+        # Rifiutato se i bordi sono piu' vicini di min_interval_width oltre la
+        # tolleranza sotto il campione piu' alto, anche sotto il campione piu' basso.
+        crossing_in_observed = y_obs_top + cross_tolerance_ratio * H < y_thr
         width_ok = (
             not crossing_in_observed
             and y_valid_bottom - y_valid_top >= min_valid_rows_ratio * (H - y0)
@@ -257,6 +276,9 @@ def path_finder(
     # Strip attese nel tratto valido, confrontate con y_valid_top prima
     # dell'arrotondamento (con strip_h dispari i centri cadono su .5).
     expected_strips = [s for s in strips if s["y"] >= y_valid_top] if width_ok else strips
+    # Intervalli della catena nelle stesse strip: numeratore e denominatore di
+    # tracking contano lo stesso insieme di strip, quindi tracking <= 1.
+    points_in_range = [p for p in points if p["y"] >= y_valid_top] if width_ok else points
     y_valid_top = int(np.ceil(y_valid_top))
     if width_ok:
         y_eval = np.linspace(y_valid_top, y_valid_bottom, 16)
@@ -268,7 +290,8 @@ def path_finder(
     # tagliati (la larghezza di un intervallo tagliato non e' quella del corridoio).
     widths_obs = np.array([p["x1"] - p["x0"] for p in points
                            if not (p["touches_left"] or p["touches_right"])], dtype=np.float32)
-    if len(widths_obs) >= 3:
+    width_checked = len(widths_obs) >= 3
+    if width_checked:
         diff2 = np.diff(widths_obs, n=2)
         width_error = float(np.percentile(np.abs(diff2), 90)) / max(np.median(np.abs(widths_obs)), 1.0)
     else:
@@ -276,9 +299,10 @@ def path_finder(
 
     # 7. Confidence (senza supporto: pesi di pf4 riscalati di 1/0.8).
     residual = float(np.mean(np.r_[left_residuals, right_residuals]))
-    tracking = min(1.0, len(points) / max(len(expected_strips), 1))
+    tracking = len(points_in_range) / max(len(expected_strips), 1)
     fit_score = np.clip(1.0 - residual / max(robust_sigma, 1e-6), 0.0, 1.0)
-    width_score = np.clip(1.0 - width_error / 0.30, 0.0, 1.0)
+    # Con meno di tre intervalli non tagliati la larghezza non si puo' verificare: punteggio 0.
+    width_score = np.clip(1.0 - width_error / 0.30, 0.0, 1.0) if width_checked else 0.0
     # Buchi interni alla catena: strip saltate tra due intervalli accettati.
     strip_ids = [p["strip_idx"] for p in points]
     max_gap = int(max(np.diff(strip_ids)) - 1) if len(strip_ids) > 1 else 0

@@ -3,14 +3,22 @@ import numpy as np
 
 
 def _widest_run_center(mask_1d):
-    """Centro (indice intero) della sequenza contigua di True piu' lunga."""
+    """Centro (indice intero) della sequenza contigua di True piu' lunga.
+
+    Restituisce None se le sequenze piu' lunghe sono piu' di una (parita'):
+    in quel caso non si sceglie nessuna colonna.
+    """
     padded = np.concatenate(([0], mask_1d.astype(np.int8), [0]))
     diff = np.diff(padded)
     starts = np.flatnonzero(diff == 1)
     ends = np.flatnonzero(diff == -1) - 1
     if len(starts) == 0:
         return int(len(mask_1d) // 2)
-    best = np.argmax(ends - starts)
+    lengths = ends - starts
+    best = np.flatnonzero(lengths == lengths.max())
+    if len(best) > 1:
+        return None
+    best = best[0]
     return int(round(0.5 * (starts[best] + ends[best])))
 
 
@@ -64,11 +72,22 @@ def path_finder(
     # 5. Calcolo confidence e validazione dello stato
     confidence = float(np.clip(peak_count / max(roi_h, 1), 0.0, 1.0))
 
-    if peak_count == 0 or confidence < degraded_conf_threshold:
+    # 6. Trova la colonna con il massimo numero di pixel
+    # In caso di plateau a pari altezza, prende il centro della sequenza.
+    # Se piu' sequenze hanno la stessa larghezza massima, nessuna colonna (lost).
+    x = _widest_run_center(column_sums == peak_count) if peak_count > 0 else None
+
+    if peak_count == 0 or confidence < degraded_conf_threshold or x is None:
         status = "lost"
+        if peak_count == 0:
+            reason = "no_path_pixels"
+        elif confidence < degraded_conf_threshold:
+            reason = "low_confidence"
+        else:
+            reason = "tied_peaks"
         return output, {
             "status": status,
-            "reason": "no_path_pixels" if peak_count == 0 else "low_confidence",
+            "reason": reason,
             "confidence": confidence,
             "centerline_model": None,
             "line_start_y": None,
@@ -91,10 +110,6 @@ def path_finder(
         }
 
     status = "ok" if confidence >= ok_conf_threshold else "degraded"
-
-    # 6. Trova la colonna con il massimo numero di pixel
-    # In caso di plateau a pari altezza, prende il centro della sequenza
-    x = _widest_run_center(column_sums == peak_count)
 
     # Stima dei bordi sinistro e destro a metà altezza del picco (per visualizzazione debug)
     half_peak = 0.5 * peak_count

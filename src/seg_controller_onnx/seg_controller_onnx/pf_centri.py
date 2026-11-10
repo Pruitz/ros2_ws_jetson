@@ -89,6 +89,9 @@ def path_finder(
 
     # 1. ROI inferiore e binarizzazione
     y0 = int(H * min_row_ratio)
+    # Come in pf5: l'altezza delle strip e' arrotondata per eccesso e la ROI e'
+    # estesa verso l'alto, cosi' n_strips strip coprono tutta la ROI senza righe avanzate.
+    y0 = max(0, H - n_strips * -(-(H - y0) // n_strips))
     path = (pred_mask[y0:] == path_class).astype(np.uint8)
 
     # 2. Morfologia e componenti
