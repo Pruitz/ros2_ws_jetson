@@ -91,6 +91,7 @@ ALPHA_W = 0.30
 ALPHA_REF_FPS = 30.0
 ALPHA_ERR_OK = 0.20         # alpha filtro errore con pf_status = ok
 ALPHA_ERR_DEGRADED = 0.18   # alpha filtro errore con pf_status = degraded
+JUMP_COHERENCE_PX = 25.0    # due salti consecutivi sono coerenti se distano al massimo questo valore
 DT_MIN = 1.0 / 120.0        # limiti di dt per evitare alpha anomali
 DT_MAX = 0.25               # (es. primo frame o pausa della bag)
 
@@ -284,6 +285,7 @@ class SegInferenceNode(Node):
         self.last_valid_error = None
         self.last_valid_time = 0.0
         self.consecutive_jumps = 0
+        self.last_jump_error = None
 
 
 
@@ -381,7 +383,8 @@ class SegInferenceNode(Node):
         """
         Filtro dell'errore laterale:
         - esponenziale con alpha fisso (due regimi: ok / degraded);
-        - threshold fisso sul salto per rejectare outlier grossolani;
+        - threshold fisso sul salto: un salto isolato viene ignorato,
+          due salti consecutivi coerenti vengono accettati direttamente;
         - hold dell'ultimo errore valido se error_px è None;
         - deadband sull'errore filtrato.
 
@@ -444,16 +447,18 @@ class SegInferenceNode(Node):
                 )
                 self.consecutive_jumps = 0
             else:
-                self.consecutive_jumps += 1
-                if self.consecutive_jumps >= 2:
-                    # Se il salto persiste per >= 2 frame consecutivi, è la linea reale
+                if (
+                    self.consecutive_jumps >= 1
+                    and abs(error_px - self.last_jump_error) <= JUMP_COHERENCE_PX
+                ):
+                    # Due salti consecutivi coerenti tra loro: la linea è cambiata davvero
                     self.filtered_error = float(error_px)
                     self.consecutive_jumps = 0
                 else:
-                    # Singolo frame isolato: integrazione prudente senza azzeramento
-                    self.filtered_error = (
-                        0.80 * self.filtered_error + 0.20 * float(error_px)
-                    )
+                    # Primo salto (o non coerente col precedente): frame ignorato,
+                    # il filtro resta fermo e la misura viene memorizzata
+                    self.last_jump_error = float(error_px)
+                    self.consecutive_jumps = 1
 
         # Aggiorno ultimo errore valido e tempo
         self.last_valid_error = float(self.filtered_error)
