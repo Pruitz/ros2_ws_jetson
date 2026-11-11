@@ -1,0 +1,5 @@
+2026-11-11T10:30:28+01:00
+NV Power Mode: MAXN
+0
+SOC family:tegra234  Machine:NVIDIA Jetson AGX Orin Developer Kit
+Error: Run this script(/usr/bin/jetson_clocks) as a root user

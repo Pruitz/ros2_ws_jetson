@@ -1,0 +1,226 @@
+Frame 1 | callback_total=584.8 ms | decode=3.8 ms | preprocess=1.8 ms | inference=529.4 ms | path_finding=16.2 ms | cmd_publish=0.1 ms | pf_status=ok | conf=0.95 | band_ratio=0.00 | strip_ratio=0.00 | side=destra | raw_error=29.05 | filtered_error=29.05px | filter=valid | v=0.200 | w=-0.092 | dt=0.0 ms
+---
+Frame 2 | callback_total=62.2 ms | decode=3.1 ms | preprocess=1.7 ms | inference=10.2 ms | path_finding=14.7 ms | cmd_publish=0.1 ms | pf_status=ok | conf=0.97 | band_ratio=0.00 | strip_ratio=0.00 | side=destra | raw_error=36.74 | filtered_error=35.30px | filter=valid | v=0.200 | w=-0.353 | dt=250.0 ms
+---
+Frame 3 | callback_total=62.5 ms | decode=2.9 ms | preprocess=1.7 ms | inference=10.5 ms | path_finding=14.8 ms | cmd_publish=0.1 ms | pf_status=ok | conf=0.96 | band_ratio=0.00 | strip_ratio=0.00 | side=destra | raw_error=38.27 | filtered_error=37.71px | filter=valid | v=0.200 | w=-0.395 | dt=250.0 ms
+---
+Frame 4 | callback_total=62.0 ms | decode=2.8 ms | preprocess=1.7 ms | inference=10.0 ms | path_finding=14.9 ms | cmd_publish=0.1 ms | pf_status=ok | conf=0.96 | band_ratio=0.00 | strip_ratio=0.00 | side=destra | raw_error=37.98 | filtered_error=37.80px | filter=valid | v=0.200 | w=-0.397 | dt=63.3 ms
+---
+Frame 5 | callback_total=63.0 ms | decode=2.8 ms | preprocess=1.7 ms | inference=10.0 ms | path_finding=15.7 ms | cmd_publish=0.1 ms | pf_status=ok | conf=0.96 | band_ratio=0.00 | strip_ratio=0.00 | side=destra | raw_error=38.25 | filtered_error=37.96px | filter=valid | v=0.200 | w=-0.399 | dt=62.7 ms
+---
+Frame 6 | callback_total=63.0 ms | decode=2.9 ms | preprocess=1.7 ms | inference=10.1 ms | path_finding=15.7 ms | cmd_publish=0.1 ms | pf_status=ok | conf=0.97 | band_ratio=0.00 | strip_ratio=0.00 | side=destra | raw_error=38.45 | filtered_error=38.13px | filter=valid | v=0.200 | w=-0.401 | dt=64.7 ms
+---
+Frame 7 | callback_total=62.4 ms | decode=2.8 ms | preprocess=1.7 ms | inference=9.9 ms | path_finding=15.4 ms | cmd_publish=0.1 ms | pf_status=ok | conf=0.96 | band_ratio=0.00 | strip_ratio=0.00 | side=destra | raw_error=38.56 | filtered_error=38.28px | filter=valid | v=0.200 | w=-0.402 | dt=63.7 ms
+---
+Frame 8 | callback_total=62.9 ms | decode=2.8 ms | preprocess=1.7 ms | inference=10.0 ms | path_finding=15.6 ms | cmd_publish=0.1 ms | pf_status=ok | conf=0.96 | band_ratio=0.00 | strip_ratio=0.00 | side=destra | raw_error=37.41 | filtered_error=37.98px | filter=valid | v=0.200 | w=-0.402 | dt=63.2 ms
+---
+Frame 9 | callback_total=63.0 ms | decode=2.8 ms | preprocess=1.7 ms | inference=10.0 ms | path_finding=15.5 ms | cmd_publish=0.1 ms | pf_status=ok | conf=0.96 | band_ratio=0.00 | strip_ratio=0.00 | side=destra | raw_error=38.06 | filtered_error=38.01px | filter=valid | v=0.200 | w=-0.401 | dt=63.7 ms
+---
+Frame 10 | callback_total=62.6 ms | decode=2.8 ms | preprocess=1.7 ms | inference=9.9 ms | path_finding=15.5 ms | cmd_publish=0.1 ms | pf_status=ok | conf=0.96 | band_ratio=0.00 | strip_ratio=0.00 | side=destra | raw_error=38.35 | filtered_error=38.13px | filter=valid | v=0.200 | w=-0.402 | dt=63.8 ms
+---
+Frame 11 | callback_total=62.8 ms | decode=2.8 ms | preprocess=1.7 ms | inference=10.0 ms | path_finding=15.5 ms | cmd_publish=0.1 ms | pf_status=ok | conf=0.96 | band_ratio=0.00 | strip_ratio=0.00 | side=destra | raw_error=37.69 | filtered_error=37.97px | filter=valid | v=0.200 | w=-0.401 | dt=64.2 ms
+---
+Frame 12 | callback_total=63.2 ms | decode=3.0 ms | preprocess=1.7 ms | inference=10.0 ms | path_finding=15.6 ms | cmd_publish=0.1 ms | pf_status=ok | conf=0.96 | band_ratio=0.00 | strip_ratio=0.00 | side=destra | raw_error=37.96 | filtered_error=37.97px | filter=valid | v=0.200 | w=-0.401 | dt=63.6 ms
+---
+Frame 13 | callback_total=63.2 ms | decode=2.8 ms | preprocess=1.7 ms | inference=10.1 ms | path_finding=15.6 ms | cmd_publish=0.1 ms | pf_status=ok | conf=0.96 | band_ratio=0.00 | strip_ratio=0.00 | side=destra | raw_error=38.23 | filtered_error=38.06px | filter=valid | v=0.200 | w=-0.401 | dt=64.0 ms
+---
+Frame 14 | callback_total=63.0 ms | decode=2.8 ms | preprocess=1.7 ms | inference=10.0 ms | path_finding=15.6 ms | cmd_publish=0.1 ms | pf_status=ok | conf=0.96 | band_ratio=0.00 | strip_ratio=0.00 | side=destra | raw_error=36.50 | filtered_error=37.52px | filter=valid | v=0.200 | w=-0.399 | dt=64.0 ms
+---
+Frame 15 | callback_total=63.0 ms | decode=2.8 ms | preprocess=1.7 ms | inference=10.0 ms | path_finding=15.5 ms | cmd_publish=0.1 ms | pf_status=ok | conf=0.97 | band_ratio=0.00 | strip_ratio=0.00 | side=destra | raw_error=36.11 | filtered_error=37.03px | filter=valid | v=0.200 | w=-0.395 | dt=63.7 ms
+---
+Frame 16 | callback_total=63.1 ms | decode=2.8 ms | preprocess=1.7 ms | inference=10.0 ms | path_finding=15.6 ms | cmd_publish=0.1 ms | pf_status=ok | conf=0.96 | band_ratio=0.00 | strip_ratio=0.00 | side=destra | raw_error=36.57 | filtered_error=36.87px | filter=valid | v=0.200 | w=-0.392 | dt=64.6 ms
+---
+Frame 17 | callback_total=63.1 ms | decode=2.8 ms | preprocess=1.7 ms | inference=9.8 ms | path_finding=15.7 ms | cmd_publish=0.1 ms | pf_status=ok | conf=0.96 | band_ratio=0.00 | strip_ratio=0.00 | side=destra | raw_error=36.41 | filtered_error=36.71px | filter=valid | v=0.200 | w=-0.390 | dt=63.8 ms
+---
+Frame 18 | callback_total=63.0 ms | decode=2.8 ms | preprocess=1.7 ms | inference=9.9 ms | path_finding=15.7 ms | cmd_publish=0.1 ms | pf_status=ok | conf=0.96 | band_ratio=0.00 | strip_ratio=0.00 | side=destra | raw_error=35.43 | filtered_error=36.26px | filter=valid | v=0.200 | w=-0.386 | dt=63.9 ms
+---
+Frame 19 | callback_total=63.2 ms | decode=2.8 ms | preprocess=1.7 ms | inference=10.0 ms | path_finding=15.6 ms | cmd_publish=0.1 ms | pf_status=ok | conf=0.96 | band_ratio=0.00 | strip_ratio=0.00 | side=destra | raw_error=35.13 | filtered_error=35.87px | filter=valid | v=0.200 | w=-0.383 | dt=63.8 ms
+---
+Frame 20 | callback_total=62.6 ms | decode=2.8 ms | preprocess=1.7 ms | inference=9.8 ms | path_finding=15.6 ms | cmd_publish=0.1 ms | pf_status=ok | conf=0.95 | band_ratio=0.00 | strip_ratio=0.00 | side=destra | raw_error=35.75 | filtered_error=35.83px | filter=valid | v=0.200 | w=-0.380 | dt=63.9 ms
+---
+Frame 21 | callback_total=62.6 ms | decode=2.8 ms | preprocess=1.7 ms | inference=10.0 ms | path_finding=15.5 ms | cmd_publish=0.1 ms | pf_status=ok | conf=0.94 | band_ratio=0.00 | strip_ratio=0.00 | side=destra | raw_error=41.35 | filtered_error=37.76px | filter=valid | v=0.200 | w=-0.387 | dt=64.2 ms
+---
+Frame 22 | callback_total=62.6 ms | decode=2.9 ms | preprocess=1.7 ms | inference=10.0 ms | path_finding=15.5 ms | cmd_publish=0.1 ms | pf_status=ok | conf=0.94 | band_ratio=0.00 | strip_ratio=0.00 | side=destra | raw_error=39.63 | filtered_error=38.40px | filter=valid | v=0.200 | w=-0.394 | dt=63.3 ms
+---
+Frame 23 | callback_total=61.8 ms | decode=2.8 ms | preprocess=1.7 ms | inference=10.0 ms | path_finding=15.3 ms | cmd_publish=0.1 ms | pf_status=ok | conf=0.93 | band_ratio=0.00 | strip_ratio=0.00 | side=destra | raw_error=34.78 | filtered_error=37.15px | filter=valid | v=0.200 | w=-0.391 | dt=63.3 ms
+---
+Frame 24 | callback_total=62.3 ms | decode=2.9 ms | preprocess=1.7 ms | inference=10.0 ms | path_finding=15.3 ms | cmd_publish=0.1 ms | pf_status=ok | conf=0.94 | band_ratio=0.00 | strip_ratio=0.00 | side=destra | raw_error=29.57 | filtered_error=34.55px | filter=valid | v=0.200 | w=-0.376 | dt=62.6 ms
+---
+Frame 25 | callback_total=61.7 ms | decode=2.8 ms | preprocess=1.7 ms | inference=10.0 ms | path_finding=15.3 ms | cmd_publish=0.1 ms | pf_status=ok | conf=0.93 | band_ratio=0.00 | strip_ratio=0.00 | side=destra | raw_error=28.84 | filtered_error=32.59px | filter=valid | v=0.200 | w=-0.358 | dt=63.0 ms
+---
+Frame 26 | callback_total=61.7 ms | decode=2.8 ms | preprocess=1.7 ms | inference=9.9 ms | path_finding=15.4 ms | cmd_publish=0.1 ms | pf_status=ok | conf=0.93 | band_ratio=0.00 | strip_ratio=0.00 | side=destra | raw_error=28.99 | filtered_error=31.34px | filter=valid | v=0.200 | w=-0.343 | dt=63.3 ms
+---
+Frame 27 | callback_total=61.2 ms | decode=2.8 ms | preprocess=1.7 ms | inference=9.9 ms | path_finding=15.3 ms | cmd_publish=0.1 ms | pf_status=ok | conf=0.93 | band_ratio=0.00 | strip_ratio=0.00 | side=destra | raw_error=30.80 | filtered_error=31.16px | filter=valid | v=0.200 | w=-0.334 | dt=62.4 ms
+---
+Frame 28 | callback_total=61.2 ms | decode=2.8 ms | preprocess=1.7 ms | inference=10.0 ms | path_finding=15.1 ms | cmd_publish=0.1 ms | pf_status=ok | conf=0.92 | band_ratio=0.00 | strip_ratio=0.00 | side=destra | raw_error=33.26 | filtered_error=31.87px | filter=valid | v=0.200 | w=-0.332 | dt=62.0 ms
+---
+Frame 29 | callback_total=60.9 ms | decode=2.8 ms | preprocess=1.7 ms | inference=10.0 ms | path_finding=15.1 ms | cmd_publish=0.1 ms | pf_status=ok | conf=0.92 | band_ratio=0.00 | strip_ratio=0.00 | side=destra | raw_error=26.69 | filtered_error=30.11px | filter=valid | v=0.200 | w=-0.323 | dt=61.9 ms
+---
+Frame 30 | callback_total=60.8 ms | decode=2.8 ms | preprocess=1.7 ms | inference=10.0 ms | path_finding=15.0 ms | cmd_publish=0.1 ms | pf_status=ok | conf=0.92 | band_ratio=0.00 | strip_ratio=0.00 | side=destra | raw_error=20.18 | filtered_error=26.75px | filter=valid | v=0.200 | w=-0.301 | dt=61.7 ms
+---
+Frame 31 | callback_total=61.2 ms | decode=2.8 ms | preprocess=1.7 ms | inference=9.9 ms | path_finding=15.2 ms | cmd_publish=0.1 ms | pf_status=ok | conf=0.92 | band_ratio=0.00 | strip_ratio=0.00 | side=destra | raw_error=16.03 | filtered_error=23.09px | filter=valid | v=0.200 | w=-0.271 | dt=62.4 ms
+---
+Frame 32 | callback_total=61.0 ms | decode=2.8 ms | preprocess=1.7 ms | inference=9.8 ms | path_finding=15.1 ms | cmd_publish=0.1 ms | pf_status=ok | conf=0.92 | band_ratio=0.00 | strip_ratio=0.00 | side=destra | raw_error=14.77 | filtered_error=20.27px | filter=valid | v=0.200 | w=-0.241 | dt=61.9 ms
+---
+Frame 33 | callback_total=60.6 ms | decode=2.8 ms | preprocess=1.7 ms | inference=10.0 ms | path_finding=14.8 ms | cmd_publish=0.1 ms | pf_status=ok | conf=0.91 | band_ratio=0.00 | strip_ratio=0.00 | side=destra | raw_error=16.92 | filtered_error=19.14px | filter=valid | v=0.200 | w=-0.220 | dt=61.7 ms
+---
+Frame 34 | callback_total=61.0 ms | decode=2.8 ms | preprocess=1.7 ms | inference=9.9 ms | path_finding=15.1 ms | cmd_publish=0.1 ms | pf_status=ok | conf=0.92 | band_ratio=0.00 | strip_ratio=0.00 | side=destra | raw_error=19.70 | filtered_error=19.33px | filter=valid | v=0.200 | w=-0.211 | dt=61.4 ms
+---
+Frame 35 | callback_total=60.8 ms | decode=2.8 ms | preprocess=1.7 ms | inference=10.0 ms | path_finding=15.0 ms | cmd_publish=0.1 ms | pf_status=ok | conf=0.92 | band_ratio=0.00 | strip_ratio=0.00 | side=destra | raw_error=24.13 | filtered_error=20.95px | filter=valid | v=0.200 | w=-0.214 | dt=61.7 ms
+---
+Frame 36 | callback_total=61.3 ms | decode=2.8 ms | preprocess=1.7 ms | inference=9.9 ms | path_finding=15.2 ms | cmd_publish=0.1 ms | pf_status=ok | conf=0.92 | band_ratio=0.00 | strip_ratio=0.00 | side=destra | raw_error=26.46 | filtered_error=22.83px | filter=valid | v=0.200 | w=-0.225 | dt=62.3 ms
+---
+Frame 37 | callback_total=61.4 ms | decode=2.8 ms | preprocess=1.7 ms | inference=10.0 ms | path_finding=15.2 ms | cmd_publish=0.1 ms | pf_status=ok | conf=0.93 | band_ratio=0.00 | strip_ratio=0.00 | side=destra | raw_error=24.24 | filtered_error=23.31px | filter=valid | v=0.200 | w=-0.234 | dt=62.0 ms
+---
+Frame 38 | callback_total=61.9 ms | decode=2.8 ms | preprocess=1.7 ms | inference=10.0 ms | path_finding=15.3 ms | cmd_publish=0.1 ms | pf_status=ok | conf=0.93 | band_ratio=0.00 | strip_ratio=0.00 | side=destra | raw_error=22.20 | filtered_error=22.93px | filter=valid | v=0.200 | w=-0.236 | dt=62.2 ms
+---
+Frame 39 | callback_total=61.5 ms | decode=2.8 ms | preprocess=1.7 ms | inference=9.9 ms | path_finding=15.3 ms | cmd_publish=0.1 ms | pf_status=ok | conf=0.93 | band_ratio=0.00 | strip_ratio=0.00 | side=destra | raw_error=22.85 | filtered_error=22.91px | filter=valid | v=0.200 | w=-0.238 | dt=62.6 ms
+---
+Frame 40 | callback_total=61.6 ms | decode=2.8 ms | preprocess=1.7 ms | inference=9.8 ms | path_finding=15.4 ms | cmd_publish=0.1 ms | pf_status=ok | conf=0.93 | band_ratio=0.00 | strip_ratio=0.00 | side=destra | raw_error=29.60 | filtered_error=25.19px | filter=valid | v=0.200 | w=-0.250 | dt=62.3 ms
+---
+Frame 41 | callback_total=61.6 ms | decode=2.8 ms | preprocess=1.7 ms | inference=9.9 ms | path_finding=15.4 ms | cmd_publish=0.1 ms | pf_status=ok | conf=0.93 | band_ratio=0.00 | strip_ratio=0.00 | side=destra | raw_error=34.29 | filtered_error=28.33px | filter=valid | v=0.200 | w=-0.272 | dt=63.2 ms
+---
+Frame 42 | callback_total=61.4 ms | decode=2.8 ms | preprocess=1.7 ms | inference=9.9 ms | path_finding=15.2 ms | cmd_publish=0.1 ms | pf_status=ok | conf=0.92 | band_ratio=0.00 | strip_ratio=0.00 | side=destra | raw_error=43.97 | filtered_error=33.67px | filter=valid | v=0.200 | w=-0.309 | dt=62.3 ms
+---
+Frame 43 | callback_total=61.0 ms | decode=2.7 ms | preprocess=1.7 ms | inference=9.8 ms | path_finding=15.1 ms | cmd_publish=0.1 ms | pf_status=ok | conf=0.91 | band_ratio=0.00 | strip_ratio=0.00 | side=destra | raw_error=44.93 | filtered_error=37.50px | filter=valid | v=0.200 | w=-0.347 | dt=62.2 ms
+---
+Frame 44 | callback_total=60.0 ms | decode=2.7 ms | preprocess=1.7 ms | inference=9.9 ms | path_finding=14.5 ms | cmd_publish=0.1 ms | pf_status=ok | conf=0.92 | band_ratio=0.00 | strip_ratio=0.00 | side=destra | raw_error=33.13 | filtered_error=36.02px | filter=valid | v=0.200 | w=-0.360 | dt=61.7 ms
+---
+Frame 45 | callback_total=61.6 ms | decode=2.8 ms | preprocess=1.7 ms | inference=9.9 ms | path_finding=15.3 ms | cmd_publish=0.1 ms | pf_status=ok | conf=0.94 | band_ratio=0.00 | strip_ratio=0.00 | side=destra | raw_error=23.68 | filtered_error=31.90px | filter=valid | v=0.200 | w=-0.347 | dt=60.8 ms
+---
+Frame 46 | callback_total=62.3 ms | decode=2.8 ms | preprocess=1.7 ms | inference=9.9 ms | path_finding=15.5 ms | cmd_publish=0.1 ms | pf_status=ok | conf=0.94 | band_ratio=0.00 | strip_ratio=0.00 | side=destra | raw_error=19.39 | filtered_error=27.58px | filter=valid | v=0.200 | w=-0.318 | dt=63.2 ms
+---
+Frame 47 | callback_total=62.7 ms | decode=2.8 ms | preprocess=1.7 ms | inference=10.0 ms | path_finding=15.5 ms | cmd_publish=0.1 ms | pf_status=ok | conf=0.94 | band_ratio=0.00 | strip_ratio=0.00 | side=destra | raw_error=19.04 | filtered_error=24.64px | filter=valid | v=0.200 | w=-0.288 | dt=63.0 ms
+---
+Frame 48 | callback_total=62.6 ms | decode=2.8 ms | preprocess=1.7 ms | inference=9.8 ms | path_finding=15.6 ms | cmd_publish=0.1 ms | pf_status=ok | conf=0.93 | band_ratio=0.00 | strip_ratio=0.00 | side=destra | raw_error=8.04 | filtered_error=18.89px | filter=valid | v=0.200 | w=-0.243 | dt=63.5 ms
+---
+Frame 49 | callback_total=62.7 ms | decode=2.8 ms | preprocess=1.7 ms | inference=9.8 ms | path_finding=15.6 ms | cmd_publish=0.1 ms | pf_status=ok | conf=0.95 | band_ratio=0.00 | strip_ratio=0.00 | side=destra | raw_error=7.38 | filtered_error=14.91px | filter=valid | v=0.200 | w=-0.201 | dt=63.4 ms
+---
+Frame 50 | callback_total=62.2 ms | decode=2.9 ms | preprocess=1.7 ms | inference=9.9 ms | path_finding=15.4 ms | cmd_publish=0.1 ms | pf_status=ok | conf=0.94 | band_ratio=0.00 | strip_ratio=0.00 | side=destra | raw_error=4.38 | filtered_error=11.26px | filter=valid | v=0.200 | w=-0.160 | dt=63.5 ms
+---
+Frame 51 | callback_total=62.5 ms | decode=2.9 ms | preprocess=1.7 ms | inference=10.1 ms | path_finding=15.5 ms | cmd_publish=0.1 ms | pf_status=ok | conf=0.93 | band_ratio=0.00 | strip_ratio=0.00 | side=destra | raw_error=4.85 | filtered_error=9.03px | filter=valid | v=0.200 | w=-0.127 | dt=63.8 ms
+---
+Frame 52 | callback_total=62.4 ms | decode=2.9 ms | preprocess=1.7 ms | inference=10.0 ms | path_finding=15.3 ms | cmd_publish=0.1 ms | pf_status=ok | conf=0.93 | band_ratio=0.00 | strip_ratio=0.00 | side=destra | raw_error=10.03 | filtered_error=9.38px | filter=valid | v=0.200 | w=-0.113 | dt=63.3 ms
+---
+Frame 53 | callback_total=62.5 ms | decode=2.9 ms | preprocess=1.7 ms | inference=10.0 ms | path_finding=15.3 ms | cmd_publish=0.1 ms | pf_status=ok | conf=0.93 | band_ratio=0.00 | strip_ratio=0.00 | side=destra | raw_error=13.12 | filtered_error=10.67px | filter=valid | v=0.200 | w=-0.112 | dt=63.2 ms
+---
+Frame 54 | callback_total=62.5 ms | decode=2.8 ms | preprocess=1.7 ms | inference=10.0 ms | path_finding=15.4 ms | cmd_publish=0.1 ms | pf_status=ok | conf=0.94 | band_ratio=0.00 | strip_ratio=0.00 | side=destra | raw_error=16.92 | filtered_error=12.83px | filter=valid | v=0.200 | w=-0.123 | dt=63.3 ms
+---
+Frame 55 | callback_total=62.1 ms | decode=2.8 ms | preprocess=1.7 ms | inference=9.8 ms | path_finding=15.4 ms | cmd_publish=0.1 ms | pf_status=ok | conf=0.93 | band_ratio=0.00 | strip_ratio=0.00 | side=destra | raw_error=21.26 | filtered_error=15.74px | filter=valid | v=0.200 | w=-0.143 | dt=63.2 ms
+---
+Frame 56 | callback_total=62.3 ms | decode=2.8 ms | preprocess=1.7 ms | inference=9.9 ms | path_finding=15.4 ms | cmd_publish=0.1 ms | pf_status=ok | conf=0.93 | band_ratio=0.00 | strip_ratio=0.00 | side=destra | raw_error=24.60 | filtered_error=18.81px | filter=valid | v=0.200 | w=-0.169 | dt=63.6 ms
+---
+Frame 57 | callback_total=62.3 ms | decode=2.8 ms | preprocess=1.7 ms | inference=9.9 ms | path_finding=15.4 ms | cmd_publish=0.1 ms | pf_status=ok | conf=0.94 | band_ratio=0.00 | strip_ratio=0.00 | side=destra | raw_error=31.28 | filtered_error=23.10px | filter=valid | v=0.200 | w=-0.204 | dt=63.0 ms
+---
+Frame 58 | callback_total=61.9 ms | decode=2.8 ms | preprocess=1.7 ms | inference=9.9 ms | path_finding=15.4 ms | cmd_publish=0.1 ms | pf_status=ok | conf=0.92 | band_ratio=0.00 | strip_ratio=0.00 | side=destra | raw_error=39.19 | filtered_error=28.64px | filter=valid | v=0.200 | w=-0.250 | dt=63.1 ms
+---
+Frame 59 | callback_total=61.6 ms | decode=2.8 ms | preprocess=1.7 ms | inference=9.8 ms | path_finding=15.3 ms | cmd_publish=0.1 ms | pf_status=ok | conf=0.93 | band_ratio=0.00 | strip_ratio=0.00 | side=destra | raw_error=40.20 | filtered_error=32.60px | filter=valid | v=0.200 | w=-0.294 | dt=62.6 ms
+---
+Frame 60 | callback_total=61.6 ms | decode=2.8 ms | preprocess=1.7 ms | inference=9.9 ms | path_finding=15.3 ms | cmd_publish=0.1 ms | pf_status=ok | conf=0.93 | band_ratio=0.00 | strip_ratio=0.00 | side=destra | raw_error=42.12 | filtered_error=35.85px | filter=valid | v=0.200 | w=-0.333 | dt=62.4 ms
+---
+Frame 61 | callback_total=61.7 ms | decode=2.8 ms | preprocess=1.7 ms | inference=9.9 ms | path_finding=15.3 ms | cmd_publish=0.1 ms | pf_status=ok | conf=0.93 | band_ratio=0.00 | strip_ratio=0.00 | side=destra | raw_error=44.38 | filtered_error=38.79px | filter=valid | v=0.200 | w=-0.368 | dt=63.2 ms
+---
+Frame 62 | callback_total=61.8 ms | decode=2.8 ms | preprocess=1.7 ms | inference=9.8 ms | path_finding=15.4 ms | cmd_publish=0.1 ms | pf_status=ok | conf=0.94 | band_ratio=0.00 | strip_ratio=0.00 | side=destra | raw_error=40.70 | filtered_error=39.44px | filter=valid | v=0.200 | w=-0.390 | dt=62.5 ms
+---
+Frame 63 | callback_total=61.5 ms | decode=2.8 ms | preprocess=1.7 ms | inference=9.9 ms | path_finding=15.3 ms | cmd_publish=0.1 ms | pf_status=ok | conf=0.93 | band_ratio=0.00 | strip_ratio=0.00 | side=destra | raw_error=37.25 | filtered_error=38.69px | filter=valid | v=0.200 | w=-0.396 | dt=62.5 ms
+---
+Frame 64 | callback_total=62.3 ms | decode=2.8 ms | preprocess=1.7 ms | inference=9.8 ms | path_finding=15.4 ms | cmd_publish=0.1 ms | pf_status=ok | conf=0.92 | band_ratio=0.00 | strip_ratio=0.00 | side=destra | raw_error=29.62 | filtered_error=35.60px | filter=valid | v=0.200 | w=-0.383 | dt=62.2 ms
+---
+Frame 65 | callback_total=62.1 ms | decode=2.8 ms | preprocess=1.7 ms | inference=9.9 ms | path_finding=15.3 ms | cmd_publish=0.1 ms | pf_status=ok | conf=0.93 | band_ratio=0.00 | strip_ratio=0.00 | side=destra | raw_error=27.29 | filtered_error=32.74px | filter=valid | v=0.200 | w=-0.363 | dt=63.1 ms
+---
+Frame 66 | callback_total=62.2 ms | decode=2.8 ms | preprocess=1.7 ms | inference=9.9 ms | path_finding=15.4 ms | cmd_publish=0.1 ms | pf_status=ok | conf=0.91 | band_ratio=0.00 | strip_ratio=0.00 | side=destra | raw_error=24.17 | filtered_error=29.76px | filter=valid | v=0.200 | w=-0.335 | dt=63.8 ms
+---
+Frame 67 | callback_total=62.5 ms | decode=2.9 ms | preprocess=1.7 ms | inference=9.9 ms | path_finding=15.4 ms | cmd_publish=0.1 ms | pf_status=ok | conf=0.93 | band_ratio=0.00 | strip_ratio=0.00 | side=destra | raw_error=18.85 | filtered_error=26.01px | filter=valid | v=0.200 | w=-0.304 | dt=63.0 ms
+---
+Frame 68 | callback_total=62.2 ms | decode=2.9 ms | preprocess=1.7 ms | inference=9.9 ms | path_finding=15.4 ms | cmd_publish=0.1 ms | pf_status=ok | conf=0.93 | band_ratio=0.00 | strip_ratio=0.00 | side=destra | raw_error=14.10 | filtered_error=21.90px | filter=valid | v=0.200 | w=-0.267 | dt=63.2 ms
+---
+Frame 69 | callback_total=62.4 ms | decode=2.9 ms | preprocess=1.7 ms | inference=9.8 ms | path_finding=15.3 ms | cmd_publish=0.1 ms | pf_status=ok | conf=0.93 | band_ratio=0.00 | strip_ratio=0.00 | side=destra | raw_error=8.10 | filtered_error=17.16px | filter=valid | v=0.200 | w=-0.224 | dt=62.9 ms
+---
+Frame 70 | callback_total=62.9 ms | decode=2.8 ms | preprocess=1.7 ms | inference=10.1 ms | path_finding=15.4 ms | cmd_publish=0.1 ms | pf_status=ok | conf=0.93 | band_ratio=0.00 | strip_ratio=0.00 | side=destra | raw_error=7.20 | filtered_error=13.72px | filter=valid | v=0.200 | w=-0.184 | dt=63.2 ms
+---
+Frame 71 | callback_total=62.6 ms | decode=2.9 ms | preprocess=1.7 ms | inference=9.8 ms | path_finding=15.4 ms | cmd_publish=0.1 ms | pf_status=ok | conf=0.93 | band_ratio=0.00 | strip_ratio=0.00 | side=destra | raw_error=11.06 | filtered_error=12.79px | filter=valid | v=0.200 | w=-0.159 | dt=64.6 ms
+---
+Frame 72 | callback_total=62.4 ms | decode=2.8 ms | preprocess=1.7 ms | inference=10.0 ms | path_finding=15.3 ms | cmd_publish=0.1 ms | pf_status=ok | conf=0.94 | band_ratio=0.00 | strip_ratio=0.00 | side=destra | raw_error=10.89 | filtered_error=12.13px | filter=valid | v=0.200 | w=-0.143 | dt=63.4 ms
+---
+Frame 73 | callback_total=62.4 ms | decode=2.8 ms | preprocess=1.7 ms | inference=10.0 ms | path_finding=15.3 ms | cmd_publish=0.1 ms | pf_status=ok | conf=0.94 | band_ratio=0.00 | strip_ratio=0.00 | side=destra | raw_error=20.78 | filtered_error=15.12px | filter=valid | v=0.200 | w=-0.150 | dt=63.2 ms
+---
+Frame 74 | callback_total=61.9 ms | decode=2.8 ms | preprocess=1.7 ms | inference=9.9 ms | path_finding=15.3 ms | cmd_publish=0.1 ms | pf_status=ok | conf=0.93 | band_ratio=0.00 | strip_ratio=0.00 | side=destra | raw_error=35.90 | filtered_error=22.28px | filter=valid | v=0.200 | w=-0.190 | dt=63.1 ms
+---
+Frame 75 | callback_total=61.5 ms | decode=2.8 ms | preprocess=1.7 ms | inference=9.9 ms | path_finding=15.4 ms | cmd_publish=0.1 ms | pf_status=ok | conf=0.93 | band_ratio=0.00 | strip_ratio=0.00 | side=destra | raw_error=48.78 | filtered_error=31.36px | filter=valid | v=0.200 | w=-0.257 | dt=62.7 ms
+---
+Frame 76 | callback_total=61.8 ms | decode=2.8 ms | preprocess=1.7 ms | inference=9.9 ms | path_finding=15.3 ms | cmd_publish=0.1 ms | pf_status=ok | conf=0.93 | band_ratio=0.00 | strip_ratio=0.00 | side=destra | raw_error=53.10 | filtered_error=38.85px | filter=valid | v=0.200 | w=-0.329 | dt=63.1 ms
+---
+Frame 77 | callback_total=61.5 ms | decode=2.8 ms | preprocess=1.7 ms | inference=10.0 ms | path_finding=15.2 ms | cmd_publish=0.1 ms | pf_status=ok | conf=0.93 | band_ratio=0.00 | strip_ratio=0.00 | side=destra | raw_error=56.79 | filtered_error=44.99px | filter=valid | v=0.200 | w=-0.397 | dt=62.5 ms
+---
+Frame 78 | callback_total=61.2 ms | decode=2.8 ms | preprocess=1.7 ms | inference=10.0 ms | path_finding=15.2 ms | cmd_publish=0.1 ms | pf_status=ok | conf=0.92 | band_ratio=0.00 | strip_ratio=0.00 | side=destra | raw_error=61.45 | filtered_error=50.60px | filter=valid | v=0.200 | w=-0.459 | dt=62.3 ms
+---
+Frame 79 | callback_total=60.9 ms | decode=2.8 ms | preprocess=1.7 ms | inference=10.0 ms | path_finding=15.1 ms | cmd_publish=0.1 ms | pf_status=ok | conf=0.92 | band_ratio=0.00 | strip_ratio=0.00 | side=destra | raw_error=61.50 | filtered_error=54.30px | filter=valid | v=0.200 | w=-0.509 | dt=62.0 ms
+---
+Frame 80 | callback_total=61.2 ms | decode=2.8 ms | preprocess=1.7 ms | inference=10.0 ms | path_finding=15.1 ms | cmd_publish=0.1 ms | pf_status=ok | conf=0.91 | band_ratio=0.00 | strip_ratio=0.00 | side=destra | raw_error=58.50 | filtered_error=55.72px | filter=valid | v=0.200 | w=-0.542 | dt=61.6 ms
+---
+Frame 81 | callback_total=61.0 ms | decode=2.8 ms | preprocess=1.7 ms | inference=10.0 ms | path_finding=15.1 ms | cmd_publish=0.1 ms | pf_status=ok | conf=0.91 | band_ratio=0.00 | strip_ratio=0.00 | side=destra | raw_error=57.78 | filtered_error=56.43px | filter=valid | v=0.200 | w=-0.560 | dt=62.8 ms
+---
+Frame 82 | callback_total=61.0 ms | decode=2.8 ms | preprocess=1.7 ms | inference=9.9 ms | path_finding=15.1 ms | cmd_publish=0.1 ms | pf_status=ok | conf=0.91 | band_ratio=0.00 | strip_ratio=0.00 | side=destra | raw_error=53.81 | filtered_error=55.54px | filter=valid | v=0.200 | w=-0.567 | dt=61.7 ms
+---
+Frame 83 | callback_total=61.1 ms | decode=2.8 ms | preprocess=1.7 ms | inference=9.9 ms | path_finding=15.1 ms | cmd_publish=0.1 ms | pf_status=ok | conf=0.92 | band_ratio=0.00 | strip_ratio=0.00 | side=destra | raw_error=52.75 | filtered_error=54.60px | filter=valid | v=0.200 | w=-0.566 | dt=61.8 ms
+---
+Frame 84 | callback_total=61.3 ms | decode=2.8 ms | preprocess=1.7 ms | inference=10.0 ms | path_finding=15.1 ms | cmd_publish=0.1 ms | pf_status=ok | conf=0.91 | band_ratio=0.00 | strip_ratio=0.00 | side=destra | raw_error=53.36 | filtered_error=54.18px | filter=valid | v=0.200 | w=-0.563 | dt=61.9 ms
+---
+Frame 85 | callback_total=60.6 ms | decode=2.8 ms | preprocess=1.7 ms | inference=9.9 ms | path_finding=15.1 ms | cmd_publish=0.1 ms | pf_status=ok | conf=0.91 | band_ratio=0.00 | strip_ratio=0.00 | side=destra | raw_error=56.03 | filtered_error=54.81px | filter=valid | v=0.200 | w=-0.565 | dt=62.0 ms
+---
+Frame 86 | callback_total=60.7 ms | decode=2.8 ms | preprocess=1.7 ms | inference=10.0 ms | path_finding=15.1 ms | cmd_publish=0.1 ms | pf_status=ok | conf=0.91 | band_ratio=0.00 | strip_ratio=0.00 | side=destra | raw_error=58.04 | filtered_error=55.91px | filter=valid | v=0.200 | w=-0.571 | dt=62.2 ms
+---
+Frame 87 | callback_total=61.0 ms | decode=2.8 ms | preprocess=1.7 ms | inference=10.0 ms | path_finding=15.2 ms | cmd_publish=0.1 ms | pf_status=ok | conf=0.90 | band_ratio=0.00 | strip_ratio=0.00 | side=destra | raw_error=53.54 | filtered_error=55.06px | filter=valid | v=0.200 | w=-0.569 | dt=66.6 ms
+---
+Frame 88 | callback_total=60.6 ms | decode=2.8 ms | preprocess=1.7 ms | inference=9.9 ms | path_finding=15.1 ms | cmd_publish=0.1 ms | pf_status=ok | conf=0.91 | band_ratio=0.00 | strip_ratio=0.00 | side=destra | raw_error=38.47 | filtered_error=49.44px | filter=valid | v=0.200 | w=-0.540 | dt=61.7 ms
+---
+Frame 89 | callback_total=61.7 ms | decode=2.9 ms | preprocess=1.7 ms | inference=10.2 ms | path_finding=15.0 ms | cmd_publish=0.1 ms | pf_status=ok | conf=0.90 | band_ratio=0.00 | strip_ratio=0.00 | side=destra | raw_error=26.21 | filtered_error=41.61px | filter=valid | v=0.200 | w=-0.487 | dt=61.4 ms
+---
+Frame 90 | callback_total=61.9 ms | decode=2.9 ms | preprocess=1.7 ms | inference=10.0 ms | path_finding=15.0 ms | cmd_publish=0.1 ms | pf_status=ok | conf=0.91 | band_ratio=0.00 | strip_ratio=0.00 | side=destra | raw_error=20.88 | filtered_error=34.53px | filter=valid | v=0.200 | w=-0.423 | dt=62.4 ms
+---
+Frame 91 | callback_total=62.1 ms | decode=2.9 ms | preprocess=1.7 ms | inference=10.0 ms | path_finding=15.1 ms | cmd_publish=0.1 ms | pf_status=ok | conf=0.91 | band_ratio=0.00 | strip_ratio=0.00 | side=destra | raw_error=22.35 | filtered_error=30.31px | filter=valid | v=0.200 | w=-0.369 | dt=63.5 ms
+---
+Frame 92 | callback_total=61.9 ms | decode=2.9 ms | preprocess=1.7 ms | inference=10.0 ms | path_finding=15.1 ms | cmd_publish=0.1 ms | pf_status=ok | conf=0.92 | band_ratio=0.00 | strip_ratio=0.00 | side=destra | raw_error=25.89 | filtered_error=28.79px | filter=valid | v=0.200 | w=-0.335 | dt=62.9 ms
+---
+Frame 93 | callback_total=61.7 ms | decode=2.9 ms | preprocess=1.7 ms | inference=10.0 ms | path_finding=15.0 ms | cmd_publish=0.1 ms | pf_status=ok | conf=0.91 | band_ratio=0.00 | strip_ratio=0.00 | side=destra | raw_error=27.31 | filtered_error=28.29px | filter=valid | v=0.200 | w=-0.314 | dt=62.7 ms
+---
+Frame 94 | callback_total=61.2 ms | decode=2.9 ms | preprocess=1.7 ms | inference=10.0 ms | path_finding=14.8 ms | cmd_publish=0.1 ms | pf_status=ok | conf=0.92 | band_ratio=0.00 | strip_ratio=0.00 | side=destra | raw_error=26.45 | filtered_error=27.66px | filter=valid | v=0.200 | w=-0.301 | dt=62.4 ms
+---
+Frame 95 | callback_total=61.8 ms | decode=2.9 ms | preprocess=1.7 ms | inference=10.0 ms | path_finding=15.1 ms | cmd_publish=0.1 ms | pf_status=ok | conf=0.92 | band_ratio=0.00 | strip_ratio=0.00 | side=destra | raw_error=18.73 | filtered_error=24.63px | filter=valid | v=0.200 | w=-0.279 | dt=62.0 ms
+---
+Frame 96 | callback_total=60.6 ms | decode=2.9 ms | preprocess=1.7 ms | inference=10.0 ms | path_finding=14.0 ms | cmd_publish=0.1 ms | pf_status=ok | conf=0.91 | band_ratio=0.00 | strip_ratio=0.00 | side=destra | raw_error=5.83 | filtered_error=18.13px | filter=valid | v=0.200 | w=-0.234 | dt=63.4 ms
+---
+Frame 97 | callback_total=62.2 ms | decode=2.9 ms | preprocess=1.7 ms | inference=10.0 ms | path_finding=15.1 ms | cmd_publish=0.1 ms | pf_status=ok | conf=0.92 | band_ratio=0.00 | strip_ratio=0.00 | side=destra | raw_error=4.56 | filtered_error=13.56px | filter=valid | v=0.200 | w=-0.189 | dt=61.3 ms
+---
+Frame 98 | callback_total=61.9 ms | decode=2.9 ms | preprocess=1.7 ms | inference=10.1 ms | path_finding=15.0 ms | cmd_publish=0.1 ms | pf_status=ok | conf=0.90 | band_ratio=0.00 | strip_ratio=0.00 | side=destra | raw_error=9.01 | filtered_error=11.99px | filter=valid | v=0.200 | w=-0.157 | dt=63.0 ms
+---
+Frame 99 | callback_total=61.5 ms | decode=2.9 ms | preprocess=1.7 ms | inference=9.9 ms | path_finding=15.2 ms | cmd_publish=0.1 ms | pf_status=ok | conf=0.93 | band_ratio=0.00 | strip_ratio=0.00 | side=destra | raw_error=23.67 | filtered_error=15.99px | filter=valid | v=0.200 | w=-0.161 | dt=62.7 ms
+---
+Frame 100 | callback_total=61.4 ms | decode=2.9 ms | preprocess=1.7 ms | inference=10.0 ms | path_finding=14.9 ms | cmd_publish=0.1 ms | pf_status=ok | conf=0.91 | band_ratio=0.00 | strip_ratio=0.00 | side=destra | raw_error=28.32 | filtered_error=20.19px | filter=valid | v=0.200 | w=-0.184 | dt=62.3 ms
+---
+Frame 101 | callback_total=61.6 ms | decode=2.9 ms | preprocess=1.7 ms | inference=10.1 ms | path_finding=15.0 ms | cmd_publish=0.1 ms | pf_status=ok | conf=0.90 | band_ratio=0.00 | strip_ratio=0.00 | side=destra | raw_error=11.16 | filtered_error=17.08px | filter=valid | v=0.200 | w=-0.180 | dt=63.0 ms
+---
+Frame 102 | callback_total=61.4 ms | decode=2.9 ms | preprocess=1.7 ms | inference=10.0 ms | path_finding=14.9 ms | cmd_publish=0.1 ms | pf_status=ok | conf=0.89 | band_ratio=0.00 | strip_ratio=0.00 | side=destra | raw_error=5.52 | filtered_error=12.30px | filter=valid | v=0.200 | w=-0.149 | dt=79.8 ms
+---
+Frame 103 | callback_total=61.2 ms | decode=2.9 ms | preprocess=1.7 ms | inference=10.0 ms | path_finding=14.7 ms | cmd_publish=0.1 ms | pf_status=ok | conf=0.89 | band_ratio=0.00 | strip_ratio=0.00 | side=destra | raw_error=4.86 | filtered_error=9.76px | filter=valid | v=0.200 | w=-0.125 | dt=62.2 ms
+---
+Frame 104 | callback_total=60.9 ms | decode=2.9 ms | preprocess=1.7 ms | inference=9.9 ms | path_finding=14.8 ms | cmd_publish=0.1 ms | pf_status=ok | conf=0.90 | band_ratio=0.00 | strip_ratio=0.00 | side=destra | raw_error=10.09 | filtered_error=9.87px | filter=valid | v=0.200 | w=-0.114 | dt=61.9 ms
+---
+Frame 105 | callback_total=60.8 ms | decode=2.9 ms | preprocess=1.7 ms | inference=9.8 ms | path_finding=14.7 ms | cmd_publish=0.1 ms | pf_status=ok | conf=0.90 | band_ratio=0.00 | strip_ratio=0.00 | side=destra | raw_error=9.39 | filtered_error=9.71px | filter=valid | v=0.200 | w=-0.107 | dt=61.7 ms
+---
+Frame 106 | callback_total=60.7 ms | decode=2.9 ms | preprocess=1.7 ms | inference=9.9 ms | path_finding=14.9 ms | cmd_publish=0.1 ms | pf_status=ok | conf=0.88 | band_ratio=0.00 | strip_ratio=0.00 | side=sinistra | raw_error=-1.00 | filtered_error=6.05px | filter=valid | v=0.200 | w=-0.085 | dt=62.4 ms
+---
+Frame 107 | callback_total=60.7 ms | decode=2.9 ms | preprocess=1.8 ms | inference=10.0 ms | path_finding=14.6 ms | cmd_publish=0.1 ms | pf_status=ok | conf=0.89 | band_ratio=0.00 | strip_ratio=0.00 | side=sinistra | raw_error=-9.96 | filtered_error=0.00px | filter=valid | v=0.200 | w=-0.044 | dt=61.4 ms
+---
+Frame 108 | callback_total=59.6 ms | decode=2.9 ms | preprocess=1.7 ms | inference=10.0 ms | path_finding=14.5 ms | cmd_publish=0.1 ms | pf_status=ok | conf=0.90 | band_ratio=0.00 | strip_ratio=0.00 | side=destra | raw_error=1.19 | filtered_error=0.00px | filter=valid | v=0.200 | w=-0.023 | dt=61.4 ms
+---
+Frame 109 | callback_total=59.7 ms | decode=2.8 ms | preprocess=1.7 ms | inference=10.0 ms | path_finding=14.6 ms | cmd_publish=0.1 ms | pf_status=ok | conf=0.90 | band_ratio=0.00 | strip_ratio=0.00 | side=destra | raw_error=8.94 | filtered_error=0.00px | filter=valid | v=0.200 | w=-0.012 | dt=60.4 ms
+---
+Frame 110 | callback_total=59.1 ms | decode=2.8 ms | preprocess=1.7 ms | inference=10.0 ms | path_finding=14.4 ms | cmd_publish=0.1 ms | pf_status=ok | conf=0.88 | band_ratio=0.00 | strip_ratio=0.00 | side=destra | raw_error=19.47 | filtered_error=8.84px | filter=valid | v=0.200 | w=-0.049 | dt=60.4 ms
+---
+Frame 111 | callback_total=58.9 ms | decode=2.8 ms | preprocess=1.7 ms | inference=10.0 ms | path_finding=14.3 ms | cmd_publish=0.1 ms | pf_status=ok | conf=0.89 | band_ratio=0.00 | strip_ratio=0.00 | side=destra | raw_error=24.54 | filtered_error=14.07px | filter=valid | v=0.200 | w=-0.094 | dt=60.6 ms
+---
+Frame 112 | callback_total=58.8 ms | decode=2.8 ms | preprocess=1.7 ms | inference=10.0 ms | path_finding=14.4 ms | cmd_publish=0.1 ms | pf_status=ok | conf=0.89 | band_ratio=0.00 | strip_ratio=0.00 | side=destra | raw_error=19.12 | filtered_error=15.74px | filter=valid | v=0.200 | w=-0.126 | dt=59.7 ms
+---
+Frame 113 | callback_total=58.4 ms | decode=2.8 ms | preprocess=1.7 ms | inference=9.9 ms | path_finding=14.3 ms | cmd_publish=0.1 ms | pf_status=ok | conf=0.88 | band_ratio=0.00 | strip_ratio=0.00 | side=destra | raw_error=14.72 | filtered_error=15.40px | filter=valid | v=0.200 | w=-0.141 | dt=59.6 ms
+---
