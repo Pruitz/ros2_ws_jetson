@@ -200,7 +200,7 @@ class SegInferenceNode(Node):
         self.get_logger().info(f'Provider richiesti: {requested_providers}')
         self.get_logger().info(f'Provider attivi sessione: {active_providers}')
         self.get_logger().info(f'Dispositivo ONNX Runtime: {ort_device}')
-        self.get_logger().info('Inferenza forzata su CPU')
+        self.get_logger().info(f'Inferenza su provider attivo: {active_providers}')
         self.get_logger().info(f'Modello ONNX: {model_path}')
 
 

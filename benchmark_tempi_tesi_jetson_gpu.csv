@@ -1,0 +1,11 @@
+estrattore,debug_video,frame_usati,finestra,provider,callback_total_media_ms,callback_total_dev_std_ms,inference_media_ms,inference_dev_std_ms,path_finding_media_ms,path_finding_dev_std_ms,resto_media_ms,resto_dev_std_ms,fps_da_callback
+pf5,FALSE,100,6-105,CUDAExecutionProvider,25.98,0.98,9.89,0.09,11.21,0.89,4.88,0.34,38.49
+pf5,TRUE,100,6-105,CUDAExecutionProvider,37.92,45.52,15.31,40.52,11.21,0.90,11.41,13.14,26.37
+pf_centri,FALSE,100,6-105,CUDAExecutionProvider,40.37,41.86,17.98,39.68,11.59,2.68,10.81,12.59,24.77
+pf_centri,TRUE,100,6-105,CUDAExecutionProvider,43.18,46.11,19.58,41.88,10.57,3.22,13.03,13.66,23.16
+pf_histogram,FALSE,100,6-105,CUDAExecutionProvider,38.55,42.96,19.49,41.62,7.43,4.31,11.64,12.69,25.94
+pf_histogram,TRUE,100,6-105,CUDAExecutionProvider,48.71,61.70,23.01,57.34,11.28,4.20,14.42,14.80,20.53
+pf_net,FALSE,100,6-105,CUDAExecutionProvider,55.91,56.36,30.12,49.56,9.37,6.21,16.41,16.26,17.89
+pf_net,TRUE,100,6-105,CUDAExecutionProvider,38.85,32.44,18.17,25.69,6.95,5.41,13.74,13.95,25.74
+pf_ransac,FALSE,100,6-105,CUDAExecutionProvider,41.07,41.14,18.11,38.99,11.91,2.03,11.05,12.67,24.35
+pf_ransac,TRUE,100,6-105,CUDAExecutionProvider,41.84,47.02,17.69,41.58,12.40,2.14,11.75,13.37,23.90

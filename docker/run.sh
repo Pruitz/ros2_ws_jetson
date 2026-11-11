@@ -43,12 +43,12 @@ docker run -it -d \
   --name emanuele-ros \
   --runtime nvidia \
   --network host --ipc host \
-  --group-add video --group-add dialout \
+  --group-add video --group-add dialout --group-add 995 --group-add 0 \
   "${CAM_ARGS[@]}" \
   -e ROS_DOMAIN_ID=${ROS_DOMAIN_ID:-42} \
   -v ${PROJ}:${PROJ} \
   -w ${PROJ} \
-  --privileged -v /dev:/dev \
+  --privileged --user 0:0 -v /dev:/dev \
   emanuele-ros:humble-gpu "$@"
 
 echo "Container emanuele-ros avviato con successo in background!"
