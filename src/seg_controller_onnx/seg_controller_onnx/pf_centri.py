@@ -42,8 +42,8 @@ def _irls(ys, xs, weights, iters=4, sigma=18.0):
 def path_finder(
     pred_mask,
     path_class=1,
-    min_row_ratio=0.30,
-    n_strips=24,
+    min_row_ratio=0.30,          # ROI richiesta dalla riga 67 su 224, poi estesa a n_strips * strip_h righe
+    n_strips=16,                 # come pf5: strip_h = ceil(157 / 16) = 10 px, ROI righe 64-223
     min_component_area=500,
     min_interval_width=8,
     max_interval_gap=30,
