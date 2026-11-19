@@ -22,12 +22,13 @@ def _irls(ys, xs, weights, iters=4, sigma=18.0):
     else:
         weights = np.ones_like(weights)
 
-    coeff = np.polyfit(ys, xs, 1, w=weights)
+    base_weights = weights
+    coeff = np.polyfit(ys, xs, 1, w=base_weights)
 
     for _ in range(iters):
         residuals = xs - (coeff[0] * ys + coeff[1])
         robust_weights = 1.0 / (1.0 + (residuals / max(sigma, 1e-6)) ** 2)
-        weights = weights * robust_weights
+        weights = base_weights * robust_weights
 
         if np.sum(weights) < 1e-6:
             break
