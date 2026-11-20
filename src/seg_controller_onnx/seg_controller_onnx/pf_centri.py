@@ -233,7 +233,7 @@ def path_finder(
     # 8. Fit IRLS dei centri
     ys = np.array([p["y"] for p in points], np.float32)
     xs = np.array([p["center"] for p in points], np.float32)
-    weights = np.array([p["score"] for p in points], np.float32)
+    weights = np.ones(len(points), np.float32)  # pesi iniziali uniformi, come in pf5
 
     center_model, residuals = _irls(ys, xs, weights, robust_iters, robust_sigma)
     if center_model is None:
